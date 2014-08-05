@@ -1,0 +1,20 @@
+{
+  "name": "bloody-simple-sqs",
+  "version": "0.0.0",
+  "description": "A bloody simple interface to SQS, based on the official AWS sdk.",
+  "main": "src/BloodySimpleSQS.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sqs",
+    "queue",
+    "promises",
+    "simple",
+    "amazon",
+    "aws",
+    "worker"
+  ],
+  "author": "Dimitrios C. Michalakos <dimitris@jmike.gr>",
+  "license": "MIT"
+}
