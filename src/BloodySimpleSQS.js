@@ -1,4 +1,6 @@
-var AWS = require('aws-sdk'),
+var events = require('events'),
+  util = require('util'),
+  AWS = require('aws-sdk'),
   Promise = require('bluebird');
 
 /**
@@ -18,10 +20,10 @@ function BloodySimpleSQS(options) {
     throw new Error('Invalid or unspecified "options" param');
   }
 
-  queueName = options.queueName || process.env.SQS_QUEUE_NAME;
-  accessKeyId = options.accessKeyId || process.env.SQS_ACCESS_KEY_ID;
-  secretAccessKey = options.secretAccessKey || process.env.SQS_SECRET_ACCESS_KEY;
-  region = options.region || process.env.SQS_REGION || 'us-east-1';
+  queueName = options.queueName;
+  accessKeyId = options.accessKeyId;
+  secretAccessKey = options.secretAccessKey;
+  region = options.region || 'us-east-1';
 
   if (typeof queueName !== 'string') throw new Error('Invalid or unspecified "queueName" option');
   if (typeof accessKeyId !== 'string') throw new Error('Invalid or unspecified "accessKeyId" option');
@@ -29,7 +31,6 @@ function BloodySimpleSQS(options) {
   if (typeof region !== 'string') throw new Error('Invalid or unspecified "region" option');
 
   this.queueName = queueName;
-  this.queueUrl = null;
 
   this.sqs = new AWS.SQS({
     queueName: queueName,
@@ -38,30 +39,43 @@ function BloodySimpleSQS(options) {
     region: region,
     apiVersion: '2012-11-05'
   });
+
+  events.EventEmitter.call(this);
+  this.setMaxListeners(99);
+
+  // load data from aws and emit ready
+  this._getQueueUrl().bind(this).then(function (url) {
+    this.queueUrl = url;
+    this.isReady = true;
+    this.emit('ready');
+  });
 }
 
+// BloodySimpleSQS extends the EventEmitter class
+util.inherits(BloodySimpleSQS, events.EventEmitter);
+
 /**
- * Retrieves the URL of the queue.
+ * Retrieves the URL of the queue from AWS.
  * @return {Promise}
  * @private
  */
 BloodySimpleSQS.prototype._getQueueUrl = function () {
-  var params, resolver;
-
-  // check if URL is already known
-  if (this._queueUrl !== null) return Promise.resolve(this._queueUrl); // exit
-
-  params = {
-    QueueName: this.queueName
-  };
+  var self = this,
+    resolver;
 
   resolver = function(resolve, reject) {
-    this.sqs.getQueueUrl(params, function(err, response) {
+
+    var params = {
+      QueueName: self.queueName
+    };
+
+    self.sqs.getQueueUrl(params, function(err, response) {
       if (err) return reject(err);
 
       resolve(response.QueueUrl);
     });
-  }.bind(this);
+
+  };
 
   return new Promise(resolver);
 };
@@ -73,15 +87,17 @@ BloodySimpleSQS.prototype._getQueueUrl = function () {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.add = function (body, callback) {
-  var params, resolver;
-
-  params = {
-    QueueUrl: this.queueUrl,
-    MessageBody: JSON.stringify(body)
-  };
+  var self = this,
+    resolver;
 
   resolver = function(resolve, reject) {
-    this.sqs.sendMessage(params, function(err, response) {
+
+    var params = {
+      QueueUrl: self.queueUrl,
+      MessageBody: JSON.stringify(body)
+    };
+
+    self.sqs.sendMessage(params, function(err, response) {
       var message;
 
       if (err) return reject(err);
@@ -94,9 +110,18 @@ BloodySimpleSQS.prototype.add = function (body, callback) {
 
       resolve(message);
     });
-  }.bind(this);
 
-  return new Promise(resolver).nodeify(callback);
+  };
+
+  return new Promise(function(resolve, reject) {
+    if (self.isReady) {
+      resolver(resolve, reject);
+    } else { // delay until ready
+      self.once('ready', function () {
+        resolver(resolve, reject);
+      });
+    }
+  }).nodeify(callback);
 };
 
 /**
@@ -107,7 +132,8 @@ BloodySimpleSQS.prototype.add = function (body, callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.peek = function (options, callback) {
-  var params, resolver;
+  var self = this,
+    resolver;
 
   // handle optional "options" param
   if (typeof options === 'function') {
@@ -117,14 +143,15 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
     options = {};
   }
 
-  params = {
-    QueueUrl: this.queueUrl,
-    MaxNumberOfMessages: 1,
-    WaitTimeSeconds: options.timeout || 0
-  };
-
   resolver = function(resolve, reject) {
-    this.sqs.receiveMessage(params, function(err, response) {
+
+    var params = {
+      QueueUrl: self.queueUrl,
+      MaxNumberOfMessages: 1,
+      WaitTimeSeconds: options.timeout || 0
+    };
+
+    self.sqs.receiveMessage(params, function(err, response) {
       var message;
 
       if (err) return reject(err);
@@ -140,9 +167,18 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
 
       resolve(message);
     });
-  }.bind(this);
 
-  return new Promise(resolver).nodeify(callback);
+  };
+
+  return new Promise(function(resolve, reject) {
+    if (self.isReady) {
+      resolver(resolve, reject);
+    } else { // delay until ready
+      self.once('ready', function () {
+        resolver(resolve, reject);
+      });
+    }
+  }).nodeify(callback);
 };
 
 /**
@@ -152,22 +188,33 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
-  var params, resolver;
-
-  params = {
-    QueueUrl: this.queueUrl,
-    ReceiptHandle: receiptHandle
-  };
+  var self = this,
+    resolver;
 
   resolver = function(resolve, reject) {
-    this.sqs.deleteMessage(params, function(err) {
+
+    var params = {
+      QueueUrl: self.queueUrl,
+      ReceiptHandle: receiptHandle
+    };
+
+    self.sqs.deleteMessage(params, function(err) {
       if (err) return reject(err);
 
       resolve();
     });
-  }.bind(this);
 
-  return new Promise(resolver).nodeify(callback);
+  };
+
+  return new Promise(function(resolve, reject) {
+    if (self.isReady) {
+      resolver(resolve, reject);
+    } else { // delay until ready
+      self.once('ready', function () {
+        resolver(resolve, reject);
+      });
+    }
+  }).nodeify(callback);
 };
 
 
@@ -179,20 +226,23 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.poll = function (options, callback) {
-  return this.peek(options)
-    .bind(this)
-    .then(function (message) {
-      return this.remove(message.receiptHandle)
-        .then(function () {
-          return message;
-        });
-    }).nodeify(callback);
+  return this.peek(options).bind(this).then(function (message) {
+    return this.remove(message.receiptHandle).then(function () {
+      return message;
+    });
+  }).nodeify(callback);
 };
 
 module.exports = BloodySimpleSQS;
 
 
-// var sqs = new BloodySimpleSQS();
+// require('dotenv').load();
+// var sqs = new BloodySimpleSQS({
+//   queueName: process.env.SQS_QUEUE_NAME,
+//   accessKeyId: process.env.SQS_ACCESS_KEY_ID,
+//   secretAccessKey: process.env.SQS_SECRET_ACCESS_KEY,
+//   region: process.env.SQS_REGION
+// });
 // sqs.add(123).then(function (response) {
 //   console.log(response);
 
