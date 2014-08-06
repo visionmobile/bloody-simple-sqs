@@ -1,7 +1,11 @@
 {
   "name": "bloody-simple-sqs",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A bloody simple interface to SQS, based on the official AWS sdk.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jmike/bloody-simple-sqs.git"
+  },
   "main": "src/BloodySimpleSQS.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
