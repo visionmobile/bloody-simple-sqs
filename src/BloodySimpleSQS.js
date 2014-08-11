@@ -5,11 +5,11 @@ var events = require('events'),
 
 /**
  * Constructs and returns a new bloody simple SQS client.
- * @param {Object} options SQS client options.
- * @param {String} options.queueName the name of the queue to connect to.
- * @param {String} options.accessKeyId your AWS access key ID.
- * @param {String} options.secretAccessKey your AWS secret access key.
- * @param {String} [options.region=us-east-1] the region to send service requests to.
+ * @param {object} options SQS client options.
+ * @param {string} options.queueName the name of the queue to connect to.
+ * @param {string} options.accessKeyId your AWS access key ID.
+ * @param {string} options.secretAccessKey your AWS secret access key.
+ * @param {string} [options.region=us-east-1] the region to send service requests to.
  * @constructor
  */
 function BloodySimpleSQS(options) {
@@ -82,8 +82,8 @@ BloodySimpleSQS.prototype._getQueueUrl = function () {
 
 /**
  * Appends a new message, with the designated body, at the end of the queue.
- * @param {Boolean|String|Number|Object|Null} body the body of the message.
- * @param {Function} [callback] an optional callback function, i.e. function (err, response).
+ * @param {(boolean|string|number|object|null)} body the body of the message.
+ * @param {function} [callback] an optional callback function, i.e. function (err, response).
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.add = function (body, callback) {
@@ -126,9 +126,9 @@ BloodySimpleSQS.prototype.add = function (body, callback) {
 
 /**
  * Retrieves, but does not remove, the head of the queue.
- * @param {Object} [options] optional request options.
- * @param {Number} [options.timeout=0] number of seconds to wait until a message arrives in the queue, must be >= 0 and <= 20.
- * @param {Function} [callback] an optional call back function, i.e. function (err, message, receiptHandle).
+ * @param {object} [options] optional request options.
+ * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue, must be >= 0 and <= 20.
+ * @param {function} [callback] an optional call back function, i.e. function (err, message, receiptHandle).
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.peek = function (options, callback) {
@@ -183,8 +183,8 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
 
 /**
  * Removes the designated message from queue.
- * @param {String} receiptHandle the message's receipt handle, as given on peek().
- * @param {Function} [callback] an optional callback function, i.e. function (err).
+ * @param {string} receiptHandle the message's receipt handle, as given on peek().
+ * @param {function} [callback] an optional callback function, i.e. function (err).
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
@@ -220,8 +220,8 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
 
 /**
  * Retrieves and removes the head of this queue, or returns null if this queue is empty.
- * @param {Object} [options] optional request options.
- * @param {Function} [callback] an optional call back function, i.e. function (err, message, receiptHandle).
+ * @param {object} [options] optional request options.
+ * @param {function} [callback] an optional call back function, i.e. function (err, message, receiptHandle).
  * @see {@link peek} for further information on the "options" param.
  * @return {Promise}
  */
