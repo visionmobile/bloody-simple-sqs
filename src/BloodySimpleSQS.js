@@ -127,7 +127,7 @@ BloodySimpleSQS.prototype.add = function (body, callback) {
 /**
  * Retrieves, but does not remove, the head of the queue.
  * @param {Object} [options] optional request options.
- * @param {Number} [options.timeout=0] number of seconds to wait until a message arrives in the queue.
+ * @param {Number} [options.timeout=0] number of seconds to wait until a message arrives in the queue, must be >= 0 and <= 20.
  * @param {Function} [callback] an optional call back function, i.e. function (err, message, receiptHandle).
  * @return {Promise}
  */
