@@ -155,6 +155,7 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
       var message;
 
       if (err) return reject(err);
+      if (!response.Messages) return resolve();
       if (response.Messages.length === 0) return resolve();
 
       response = response.Messages[0];
@@ -246,7 +247,7 @@ module.exports = BloodySimpleSQS;
 // sqs.add(123).then(function (response) {
 //   console.log(response);
 
-//   sqs.poll().then(function (message) {
-//     console.log(message);
-//   });
+  // sqs.poll().then(function (message) {
+  //   console.log(message);
+  // });
 // });
