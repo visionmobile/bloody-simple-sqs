@@ -155,8 +155,7 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
       var message;
 
       if (err) return reject(err);
-      if (!response.Messages) return resolve();
-      if (response.Messages.length === 0) return resolve();
+      if (!response.Messages) return resolve(null);
 
       response = response.Messages[0];
       message = {
@@ -228,9 +227,13 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
  */
 BloodySimpleSQS.prototype.poll = function (options, callback) {
   return this.peek(options).bind(this).then(function (message) {
-    return this.remove(message.receiptHandle).then(function () {
-      return message;
-    });
+    if (message) {
+      return this.remove(message.receiptHandle).then(function () {
+        return message;
+      });
+    }
+
+    return null;
   }).nodeify(callback);
 };
 
@@ -244,10 +247,10 @@ module.exports = BloodySimpleSQS;
 //   secretAccessKey: process.env.SQS_SECRET_ACCESS_KEY,
 //   region: process.env.SQS_REGION
 // });
-// sqs.add(123).then(function (response) {
-//   console.log(response);
+// // sqs.add(123).then(function (response) {
+// //   console.log(response);
 
-  // sqs.poll().then(function (message) {
-  //   console.log(message);
-  // });
-// });
+//   sqs.poll().then(function (message) {
+//     console.log(message);
+//   });
+// // });
