@@ -257,7 +257,7 @@ BloodySimpleSQS.prototype.poll = function (options, callback) {
 BloodySimpleSQS.prototype.createReadStream = function () {
   var self = this,
     rs = new Readable({
-      highWaterMark: 1,
+      highWaterMark: 1, // as little as possible
       objectMode: true,
       encoding: 'utf8'
     });
@@ -265,8 +265,11 @@ BloodySimpleSQS.prototype.createReadStream = function () {
   rs._read = function () {
     self.poll()
       .then(function (message) {
-        if (!message) return rs.push(null); // end
-        rs.push(message.body);
+        if (!message) {
+          return rs.push(null); // end
+        }
+
+        rs.push(message.body, 'utf8');
       })
       .catch(function (err) {
         rs.emit('error', err);
