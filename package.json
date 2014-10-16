@@ -1,6 +1,6 @@
 {
   "name": "bloody-simple-sqs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A bloody simple interface to SQS, based on the official AWS sdk.",
   "repository": {
     "type": "git",
@@ -22,8 +22,8 @@
   "author": "Dimitrios C. Michalakos <dimitris@jmike.gr>",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "~2.3.2",
-    "aws-sdk": "~2.0.17",
+    "aws-sdk": "^2.0.19",
+    "bluebird": "^2.3.5",
     "dotenv": "~0.4.0",
     "lodash": "~2.4.1"
   }
