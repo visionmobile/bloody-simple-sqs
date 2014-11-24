@@ -1,3 +1,7 @@
+## 0.2.5 - 2014-11-24
+
+* Created #size() method which returns the number of messages in queue.
+
 ## 0.2.4 - 2014-11-24
 
 * Created #isEmpty() method which indicates if the queue is empty.
