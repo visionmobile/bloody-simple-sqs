@@ -1,3 +1,9 @@
-test/
+.travis.yml
 .env
 .jshintrc
+.gitignore
+.idea
+.npmrc
+assets/
+test/
+docs/

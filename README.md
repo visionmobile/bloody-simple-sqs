@@ -1,6 +1,6 @@
 # Bloody simple SQS
 
-A bloody simple SQS client, based on the official AWS sdk, using Bluebird promises.
+A bloody simple SQS client for Node.js, based on the official AWS sdk.
 
 ## Installation
 
@@ -8,9 +8,13 @@ A bloody simple SQS client, based on the official AWS sdk, using Bluebird promis
 $ npm install bloody-simple-sqs
 ```
 
+#### Requirements
+
+* Node.js 0.8+
+
 ## Contributors
 
-Author: [Dimitrios C. Michalakos](https://github.com/jmike)
+* [Dimitrios C. Michalakos](https://github.com/jmike)
 
 ## License
 
