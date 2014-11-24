@@ -90,22 +90,18 @@ BloodySimpleSQS.prototype._getQueueUrl = function () {
   return new Promise(resolver);
 };
 
-
 /**
- * Indicates whether the queue is empty.
- * @param {function} [callback] an optional callback function with arguments (err, empty).
+ * Returns the number of messages in the queue.
+ * @param {function} [callback] an optional callback function with arguments (err, n).
  * @return {Promise}
  */
-BloodySimpleSQS.prototype.isEmpty = function (callback) {
+BloodySimpleSQS.prototype.size = function (callback) {
   var self = this, resolver;
 
   resolver = function(resolve, reject) {
     var params = {
       QueueUrl: self.queueUrl,
-      AttributeNames: [
-        'ApproximateNumberOfMessages',
-        'ApproximateNumberOfMessagesNotVisible'
-      ]
+      AttributeNames: ['ApproximateNumberOfMessages', 'ApproximateNumberOfMessagesNotVisible']
     };
 
     self.sqs.getQueueAttributes(params, function(err, response) {
@@ -116,7 +112,7 @@ BloodySimpleSQS.prototype.isEmpty = function (callback) {
       messagesCount = (response.Attributes.ApproximateNumberOfMessages | 0) +
         (response.Attributes.ApproximateNumberOfMessagesNotVisible | 0);
 
-      resolve(messagesCount === 0);
+      resolve(messagesCount);
     });
   };
 
@@ -129,6 +125,19 @@ BloodySimpleSQS.prototype.isEmpty = function (callback) {
       });
     }
   }).nodeify(callback);
+};
+
+/**
+ * Indicates whether the queue is empty.
+ * @param {function} [callback] an optional callback function with arguments (err, empty).
+ * @return {Promise}
+ */
+BloodySimpleSQS.prototype.isEmpty = function (callback) {
+  return this.size()
+    .then(function (n) {
+      return n === 0;
+    })
+    .nodeify(callback);
 };
 
 /**
