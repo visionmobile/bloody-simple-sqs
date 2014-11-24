@@ -8,10 +8,10 @@ var events = require('events'),
 /**
  * Constructs and returns a new bloody simple SQS client.
  * @param {object} options SQS client options.
- * @param {string} options.queueName the name of the queue to connect to.
+ * @param {string} options.queueName the name of the queue as provided by AWS.
  * @param {string} options.accessKeyId your AWS access key ID.
  * @param {string} options.secretAccessKey your AWS secret access key.
- * @param {string} [options.region=us-east-1] the AWS region of the queue.
+ * @param {string} [options.region=us-east-1] the region of the queue as provided by AWS.
  * @constructor
  */
 function BloodySimpleSQS(options) {
@@ -65,7 +65,7 @@ function BloodySimpleSQS(options) {
     });
 }
 
-// BloodySimpleSQS extends the EventEmitter class
+// @extends EventEmitter
 util.inherits(BloodySimpleSQS, events.EventEmitter);
 
 /**
@@ -83,7 +83,6 @@ BloodySimpleSQS.prototype._getQueueUrl = function () {
 
     self.sqs.getQueueUrl(params, function(err, response) {
       if (err) return reject(err);
-
       resolve(response.QueueUrl);
     });
   };
@@ -91,8 +90,49 @@ BloodySimpleSQS.prototype._getQueueUrl = function () {
   return new Promise(resolver);
 };
 
+
 /**
- * Appends a new message, with the designated payload, at the end of the queue.
+ * Indicates whether the queue is empty.
+ * @param {function} [callback] an optional callback function with arguments (err, empty).
+ * @return {Promise}
+ */
+BloodySimpleSQS.prototype.isEmpty = function (callback) {
+  var self = this, resolver;
+
+  resolver = function(resolve, reject) {
+    var params = {
+      QueueUrl: self.queueUrl,
+      AttributeNames: [
+        'ApproximateNumberOfMessages',
+        'ApproximateNumberOfMessagesNotVisible'
+      ]
+    };
+
+    self.sqs.getQueueAttributes(params, function(err, response) {
+      var messagesCount;
+
+      if (err) return reject(err);
+
+      messagesCount = (response.Attributes.ApproximateNumberOfMessages | 0) +
+        (response.Attributes.ApproximateNumberOfMessagesNotVisible | 0);
+
+      resolve(messagesCount === 0);
+    });
+  };
+
+  return new Promise(function(resolve, reject) {
+    if (self.isReady) {
+      resolver(resolve, reject);
+    } else { // delay until ready
+      self.once('ready', function () {
+        resolver(resolve, reject);
+      });
+    }
+  }).nodeify(callback);
+};
+
+/**
+ * Appends a new message, with the given payload, at the end of the queue.
  * @param {(boolean|string|number|object|null)} payload the message payload.
  * @param {function} [callback] an optional callback function, i.e. function (err, response).
  * @return {Promise}
@@ -108,7 +148,6 @@ BloodySimpleSQS.prototype.add = function (payload, callback) {
 
     self.sqs.sendMessage(params, function(err, response) {
       if (err) return reject(err);
-
       resolve({
         id: response.MessageId,
         body: payload,
@@ -208,7 +247,6 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
 
     self.sqs.deleteMessage(params, function(err) {
       if (err) return reject(err);
-
       resolve();
     });
   };
@@ -224,9 +262,8 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
   }).nodeify(callback);
 };
 
-
 /**
- * Retrieves and removes the head of this queue, or returns null if this queue is empty.
+ * Retrieves and removes the head of the queue, or returns null if queue is empty.
  * @param {object} [options] optional request options.
  * @param {function} [callback] an optional call back function, i.e. function (err, message).
  * @see {@link peek} for further information on the "options" param.
@@ -289,6 +326,13 @@ module.exports = BloodySimpleSQS;
 //   secretAccessKey: process.env.SQS_SECRET_ACCESS_KEY,
 //   region: process.env.SQS_REGION
 // });
+// sqs.isEmpty()
+//   .then(function (empty) {
+//     console.log(empty);
+//   })
+//   .catch(function (err) {
+//     console.error(err);
+//   });
 // var rs = sqs.createReadStream();
 // rs.on('readable', function() {
 //   setTimeout(function () {
