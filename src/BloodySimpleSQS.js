@@ -56,7 +56,7 @@ function BloodySimpleSQS(options) {
   this.setMaxListeners(99);
 
   // load data from aws and emit ready
-  this._getQueueUrl()
+  this.getUrl()
     .bind(this)
     .then(function (url) {
       this.queueUrl = url;
@@ -89,11 +89,14 @@ BloodySimpleSQS.prototype._contructPromise = function (resolver) {
 
 /**
  * Retrieves the URL of the queue from AWS.
+ * @param {function} [callback] an optional callback function with arguments (err, url).
  * @return {Promise}
- * @private
  */
-BloodySimpleSQS.prototype._getQueueUrl = function () {
+BloodySimpleSQS.prototype.getUrl = function (callback) {
   var self = this, params, resolver;
+
+  // check if queue URL is already know
+  if (this.isReady) return Promise.resolve(this.queueUrl).nodeify(callback);
 
   params = {
     QueueName: self.queueName
@@ -106,7 +109,7 @@ BloodySimpleSQS.prototype._getQueueUrl = function () {
     });
   };
 
-  return new Promise(resolver);
+  return new Promise(resolver).nodeify(callback);
 };
 
 /**
