@@ -69,18 +69,37 @@ function BloodySimpleSQS(options) {
 util.inherits(BloodySimpleSQS, events.EventEmitter);
 
 /**
+ * Constructs and returns a new Promise based on the designated resolver.
+ * Delays the execution of the resolver until the queue emits ready.
+ * @param {function} resolver
+ * @return {Promise}
+ * @private
+ */
+BloodySimpleSQS.prototype._contructPromise = function (resolver) {
+  var self = this;
+
+  return new Promise(function(resolve, reject) {
+    if (self.isReady) return resolver(resolve, reject);
+
+    self.once('ready', function () {
+      resolver(resolve, reject);
+    });
+  });
+};
+
+/**
  * Retrieves the URL of the queue from AWS.
  * @return {Promise}
  * @private
  */
 BloodySimpleSQS.prototype._getQueueUrl = function () {
-  var self = this, resolver;
+  var self = this, params, resolver;
+
+  params = {
+    QueueName: self.queueName
+  };
 
   resolver = function(resolve, reject) {
-    var params = {
-      QueueName: self.queueName
-    };
-
     self.sqs.getQueueUrl(params, function(err, response) {
       if (err) return reject(err);
       resolve(response.QueueUrl);
@@ -96,35 +115,27 @@ BloodySimpleSQS.prototype._getQueueUrl = function () {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.size = function (callback) {
-  var self = this, resolver;
+  var self = this, params, resolver;
+
+  params = {
+    QueueUrl: self.queueUrl,
+    AttributeNames: ['ApproximateNumberOfMessages', 'ApproximateNumberOfMessagesNotVisible']
+  };
 
   resolver = function(resolve, reject) {
-    var params = {
-      QueueUrl: self.queueUrl,
-      AttributeNames: ['ApproximateNumberOfMessages', 'ApproximateNumberOfMessagesNotVisible']
-    };
-
     self.sqs.getQueueAttributes(params, function(err, response) {
       var messagesCount;
 
       if (err) return reject(err);
 
-      messagesCount = (response.Attributes.ApproximateNumberOfMessages | 0) +
-        (response.Attributes.ApproximateNumberOfMessagesNotVisible | 0);
+      messagesCount = parseInt(response.Attributes.ApproximateNumberOfMessages, 10) +
+        parseInt(response.Attributes.ApproximateNumberOfMessagesNotVisible, 10);
 
       resolve(messagesCount);
     });
   };
 
-  return new Promise(function(resolve, reject) {
-    if (self.isReady) {
-      resolver(resolve, reject);
-    } else { // delay until ready
-      self.once('ready', function () {
-        resolver(resolve, reject);
-      });
-    }
-  }).nodeify(callback);
+  return this._contructPromise(resolver).nodeify(callback);
 };
 
 /**
@@ -134,8 +145,8 @@ BloodySimpleSQS.prototype.size = function (callback) {
  */
 BloodySimpleSQS.prototype.isEmpty = function (callback) {
   return this.size()
-    .then(function (n) {
-      return n === 0;
+    .then(function (messagesCount) {
+      return messagesCount === 0;
     })
     .nodeify(callback);
 };
@@ -147,16 +158,17 @@ BloodySimpleSQS.prototype.isEmpty = function (callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.add = function (payload, callback) {
-  var self = this, resolver;
+  var self = this, params, resolver;
+
+  params = {
+    QueueUrl: self.queueUrl,
+    MessageBody: JSON.stringify(payload)
+  };
 
   resolver = function(resolve, reject) {
-    var params = {
-      QueueUrl: self.queueUrl,
-      MessageBody: JSON.stringify(payload)
-    };
-
     self.sqs.sendMessage(params, function(err, response) {
       if (err) return reject(err);
+
       resolve({
         id: response.MessageId,
         body: payload,
@@ -165,15 +177,7 @@ BloodySimpleSQS.prototype.add = function (payload, callback) {
     });
   };
 
-  return new Promise(function(resolve, reject) {
-    if (self.isReady) {
-      resolver(resolve, reject);
-    } else { // delay until ready
-      self.once('ready', function () {
-        resolver(resolve, reject);
-      });
-    }
-  }).nodeify(callback);
+  return this._contructPromise(resolver).nodeify(callback);
 };
 
 /**
@@ -181,30 +185,39 @@ BloodySimpleSQS.prototype.add = function (payload, callback) {
  * @param {object} [options] optional request options.
  * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
  * @param {number} [options.limit=1] maximum number of messages to return; must be between 1 and 10.
- * @param {function} [callback] an optional call back function, i.e. function (err, receiptHandle).
+ * @param {function} [callback] an optional call back function, i.e. function (err, message).
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.peek = function (options, callback) {
-  var self = this, resolver;
+  var self = this, params, resolver;
 
   // handle optional "options" param
-  if (_.isFunction(options)) {
-    callback = options;
-    options = {};
-  } else if (_.isUndefined(options)) {
+  if (!_.isPlainObject(options)) {
+    if (_.isFunction(options)) {
+      callback = options;
+    } else if (!_.isUndefined(options)) {
+      return Promise.reject(new Error(
+        'Invalid options param; ' +
+        'expected object, received ' + typeof(options)
+      )).nodeify(callback);
+    }
+
     options = {};
   }
 
-  options.timeout = options.timeout || 0;
-  options.limit = options.limit || 1;
+  // set options defaults
+  options = _.defaults(options, {
+    timeout: 0,
+    limit: 1
+  });
+
+  params = {
+    QueueUrl: self.queueUrl,
+    MaxNumberOfMessages: options.limit,
+    WaitTimeSeconds: options.timeout
+  };
 
   resolver = function(resolve, reject) {
-    var params = {
-      QueueUrl: self.queueUrl,
-      MaxNumberOfMessages: options.limit,
-      WaitTimeSeconds: options.timeout
-    };
-
     self.sqs.receiveMessage(params, function(err, response) {
       var messages;
 
@@ -228,15 +241,7 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
     });
   };
 
-  return new Promise(function(resolve, reject) {
-    if (self.isReady) {
-      resolver(resolve, reject);
-    } else { // delay until ready
-      self.once('ready', function () {
-        resolver(resolve, reject);
-      });
-    }
-  }).nodeify(callback);
+  return this._contructPromise(resolver).nodeify(callback);
 };
 
 /**
@@ -246,29 +251,21 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
-  var self = this, resolver;
+  var self = this, params, resolver;
+
+  params = {
+    QueueUrl: self.queueUrl,
+    ReceiptHandle: receiptHandle
+  };
 
   resolver = function(resolve, reject) {
-    var params = {
-      QueueUrl: self.queueUrl,
-      ReceiptHandle: receiptHandle
-    };
-
     self.sqs.deleteMessage(params, function(err) {
       if (err) return reject(err);
       resolve();
     });
   };
 
-  return new Promise(function(resolve, reject) {
-    if (self.isReady) {
-      resolver(resolve, reject);
-    } else { // delay until ready
-      self.once('ready', function () {
-        resolver(resolve, reject);
-      });
-    }
-  }).nodeify(callback);
+  return this._contructPromise(resolver).nodeify(callback);
 };
 
 /**
@@ -283,10 +280,7 @@ BloodySimpleSQS.prototype.poll = function (options, callback) {
     .bind(this)
     .then(function (message) {
       if (message) {
-        return this.remove(message.receiptHandle)
-          .then(function () {
-            return message;
-          });
+        return this.remove(message.receiptHandle).return(message);
       }
 
       return null;
@@ -325,28 +319,4 @@ BloodySimpleSQS.prototype.createReadStream = function () {
   return rs;
 };
 
-
 module.exports = BloodySimpleSQS;
-
-// require('dotenv').load();
-// var sqs = new BloodySimpleSQS({
-//   queueName: process.env.SQS_QUEUE_NAME,
-//   accessKeyId: process.env.SQS_ACCESS_KEY_ID,
-//   secretAccessKey: process.env.SQS_SECRET_ACCESS_KEY,
-//   region: process.env.SQS_REGION
-// });
-// sqs.isEmpty()
-//   .then(function (empty) {
-//     console.log(empty);
-//   })
-//   .catch(function (err) {
-//     console.error(err);
-//   });
-// var rs = sqs.createReadStream();
-// rs.on('readable', function() {
-//   setTimeout(function () {
-//     console.log(rs.read())
-//   }, 2000);
-// }).on('error', function (err) {
-//   console.log(err)
-// });
