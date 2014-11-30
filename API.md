@@ -77,3 +77,27 @@ rs.on('end', function() {
   console.log('No more messages in Queue');
 });
 ```
+
+### <a name="getUrl" href="getUrl">#</a>getUrl([callback]) -> promise
+
+Retrieves the URL of the queue from Amazon.
+
+##### Parameters
+
+* `callback` _(function)_ optional callback function with (err, url) arguments
+
+##### Returns
+
+A promise resolving to a URL string.
+
+##### Example
+
+```javascript
+sqs.getUrl()
+  .then(function (url) {
+    // do something with url
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
