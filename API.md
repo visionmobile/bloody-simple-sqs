@@ -128,3 +128,35 @@ sqs.isEmpty()
     console.error(err);
   });
 ```
+
+### <a name="peek" href="peek">#</a>peek([options], [callback]) -> promise
+
+Retrieves, but does not remove, the head of the queue.
+
+##### Parameters
+
+* `options` _(object)_ optional peek options
+  * `timeout` _(number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
+  * `limit` _(number)_ maximum number of messages to return; must be between 1 and 10; defaults to 1
+* `callback` _(function)_ optional callback function with (err, data) arguments
+
+##### Returns
+
+A promise resolving to a message object with the following properties.
+
+* `id` _(string)_ the id of the message in Amazon SQS
+* `body`_(boolean, string, number, object, null)_ the message payload
+* `md5`_(string)_ an MD5 digest of the payload; this can be used to verify that Amazon SQS received the message correctly
+* `receiptHandle`_(string)_ the receipt handle associated with the current message - used to remove the message from queue
+
+##### Example
+
+```javascript
+sqs.peek({limit: 1, timeout: 20})
+  .then(function (message) {
+    console.log(JSON.stringify(message)); 
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
