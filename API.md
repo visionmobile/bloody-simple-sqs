@@ -45,7 +45,7 @@ A promise resolving to an object with the following properties.
 ```javascript
 sqs.add({a: 1, b: 2})
   .then(function (data) {
-    console.log('Message sucessfully appended to Queue with id ' + data.id); 
+    console.log('Message sucessfully appended to queue with id ' + data.id); 
   })
   .catch(function (err) {
     console.error(err);
@@ -74,7 +74,7 @@ rs.on('error', function (err) {
 });
 
 rs.on('end', function() {
-  console.log('No more messages in Queue');
+  console.log('No more messages in queue');
 });
 ```
 
@@ -120,7 +120,7 @@ A promise resolving to a boolean flag.
 sqs.isEmpty()
   .then(function (isEmpty) {
     if (isEmpty) {
-      console.log('The Queue is empty');
+      console.log('The queue is empty');
     } else {
       console.log('Queue has messages left unprocessed');
   })
@@ -157,7 +157,7 @@ sqs.peek({limit: 1, timeout: 20})
     if (message) {
       console.log(JSON.stringify(message)); 
     } else {
-      console.log('The Queue is empty');
+      console.log('The queue is empty');
     }
   })
   .catch(function (err) {
@@ -193,7 +193,39 @@ sqs.poll({limit: 1, timeout: 20})
     if (message) {
       console.log(JSON.stringify(message)); 
     } else {
-      console.log('The Queue is empty');
+      console.log('The queue is empty');
+    }
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
+
+### <a name="remove" href="remove">#</a>remove(receiptHandle, [callback]) -> promise
+
+Remove message with the designated receipt handle from queue.
+
+##### Parameters
+
+* `receiptHandle` _(object)_ the message's receipt handle, as provided by [#peek()](#peek)
+* `callback` _(function)_ optional callback function with (err) arguments
+
+##### Returns
+
+A promise resolving to no arguments.
+
+##### Example
+
+```javascript
+sqs.peek({limit: 1, timeout: 20})
+  .then(function (message) {
+    if (message) {
+      console.log('Removing message from queue');
+
+      return sqs.remove(message.receiptHandle)
+       .then(function () {
+         console.log('Message successfully removed from queue'); 
+       })
     }
   })
   .catch(function (err) {
