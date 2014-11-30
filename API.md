@@ -232,3 +232,27 @@ sqs.peek({limit: 1, timeout: 20})
     console.error(err);
   });
 ```
+
+### <a name="size" href="size">#</a>size([callback]) -> promise
+
+Retrieves the number of messages in the queue.
+
+##### Parameters
+
+* `callback` _(function)_ optional callback function with (err, num) arguments
+
+##### Returns
+
+A promise resolving to the number of messages in the queue.
+
+##### Example
+
+```javascript
+sqs.size()
+  .then(function (num) {
+    console.log(num + ' message(s) found in queue');
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
