@@ -1,56 +1,51 @@
-# Bloody Simple SQS: API reference
+# API reference
 
 ## Table of Contents
 
 * [Intro](#intro)
 * [Methods](#methods)
+  * [add(payload, [callback])](#add)
+  * [createReadStream()](#createReadStream)
   * [getUrl([callback])](#getUrl)
-  * [count(selector, [options], [callback])](#wiki-count)
-  * [del(selector, [options], [callback])](#wiki-del)
-  * [add(records, [callback])](#wiki-add)
-  * [set(records, [callback])](#wiki-set)
-  * [hasColumn(column)](#wiki-hasColumn)
-  * [isPrimaryKey(*columns)](#wiki-isPrimaryKey)
-  * [isUniqueKey(*columns)](#wiki-isUniqueKey)
-  * [isIndexKey(*columns)](#wiki-isIndexKey)
+  * [isEmpty([callback])](#isEmpty)
+  * [peek([options], [callback])](#peek)
+  * [poll([options], [callback])](#poll)
+  * [remove(receiptHandle, [callback])](#remove)
+  * [size([callback])](#size)
 
 ## Intro
 
 Install bloody-simple-sqs using npm.
 
 ```
-$ npm install naomi
+$ npm install bloody-simple-sqs
 ```
 
 ## Methods
 
-### <a name="get" href="#wiki-get">#</a>get(selector, [options], [callback]) -> promise
+### <a name="add" href="add">#</a>add(payload, [callback]) -> promise
 
-Retrieves the designated record(s) from table. Returns a promise resolving to an array of records.
+Appends a new message, with the given payload, at the end of the queue.
 
 ##### Parameters
 
-* `selector` _(boolean, number, string, Date, object, Array, null)_ selector to match records in table
-* `options` _(object)_ optional query options
-  * `order` _(string, object, Array)_ order expression to sort returned records
-  * `limit` _(string, number)_ max number of records to return from table - must be a positive integer, i.e. limit > 0
-  * `offset` _(string, number)_ number of records to skip from table - must be a non-negative integer, i.e. offset >= 0
-* `callback` _(function)_ optional callback function
+* `payload` _(boolean, string, number, object, null)_ the message payload
+* `callback` _(function)_ optional callback function with (err, data) arguments
+
+##### Returns
+
+A Promise resolving to an object with the following properties.
+
+* `id` _(string)_ the id of the message in Amazon SQS
+* `body`_(boolean, string, number, object, null)_ the message payload
+* `md5`_(string)_ an MD5 digest of the payload; this can be used to verify that Amazon SQS received the message correctly
 
 ##### Example
 
 ```javascript
-employees.get({
-  age: 30
-}, {
-  order: {lastname: 'desc'},
-  limit: 5,
-  offset: 2
-})
-  .then(function (records) {
-    if (records.length !== 0) {
-      // do something with records
-    }
+sqs.add({a: 1, b: 2})
+  .then(function (data) {
+    console.log('Message sucessfully appended to Queue with id ' + data.id); 
   })
   .catch(function (err) {
     console.error(err);
