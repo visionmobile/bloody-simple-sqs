@@ -101,3 +101,30 @@ sqs.getUrl()
     console.error(err);
   });
 ```
+
+### <a name="isEmpty" href="isEmpty">#</a>isEmpty([callback]) -> promise
+
+Indicates whether the queue is empty.
+
+##### Parameters
+
+* `callback` _(function)_ optional callback function with (err, isEmpty) arguments
+
+##### Returns
+
+A promise resolving to a boolean flag.
+
+##### Example
+
+```javascript
+sqs.isEmpty()
+  .then(function (isEmpty) {
+    if (isEmpty) {
+      console.log('The Queue is empty');
+    } else {
+      console.log('Queue has messages left unprocessed');
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
