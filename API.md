@@ -58,7 +58,7 @@ Returns a new ReadStream object consuming the queue's messages.
 
 ##### Returns
 
-A node.js (Readable Stream)[http://nodejs.org/api/stream.html#stream_class_stream_readable].
+A node.js [Readable Stream](http://nodejs.org/api/stream.html#stream_class_stream_readable).
 
 ##### Example
 
