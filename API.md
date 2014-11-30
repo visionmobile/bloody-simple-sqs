@@ -34,7 +34,7 @@ Appends a new message, with the given payload, at the end of the queue.
 
 ##### Returns
 
-A Promise resolving to an object with the following properties.
+A promise resolving to an object with the following properties.
 
 * `id` _(string)_ the id of the message in Amazon SQS
 * `body`_(boolean, string, number, object, null)_ the message payload
@@ -50,4 +50,30 @@ sqs.add({a: 1, b: 2})
   .catch(function (err) {
     console.error(err);
   });
+```
+
+### <a name="createReadStream" href="createReadStream">#</a>createReadStream() -> stream.Readable
+
+Returns a new ReadStream object consuming the queue's messages.
+
+##### Returns
+
+A node.js (Readable Stream)[http://nodejs.org/api/stream.html#stream_class_stream_readable].
+
+##### Example
+
+```javascript
+var rs = sqs.createReadStream();
+
+rs.on('readable', function() {
+  console.log(rs.read())
+});
+
+rs.on('error', function (err) {
+  console.error(err)
+});
+
+rs.on('end', function() {
+  console.log('No more messages in Queue');
+});
 ```
