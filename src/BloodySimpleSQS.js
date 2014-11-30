@@ -292,10 +292,8 @@ BloodySimpleSQS.prototype.poll = function (options, callback) {
 };
 
 /**
- * Appends a new message, with the designated payload, at the end of the queue.
- * @param {(boolean|string|number|object|null)} payload the message payload.
- * @param {function} [callback] an optional callback function, i.e. function (err, response).
- * @return {Promise}
+ * Returns a new ReadStream object consuming the queue's messages.
+ * @return {stream.Readable}
  */
 BloodySimpleSQS.prototype.createReadStream = function () {
   var self = this,
