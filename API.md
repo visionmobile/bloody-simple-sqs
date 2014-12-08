@@ -293,7 +293,7 @@ sqs.size()
 
 ### Promises VS Callbacks
 
-Bloody simple SQS exposes both promises and callback interfaces. Choose the coding style that suits you best.
+Bloody simple SQS exposes both promise and callback interfaces. Choose the coding style that suits you best.
 
 ```javascript
 sqs.add('hello')
