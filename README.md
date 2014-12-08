@@ -63,7 +63,7 @@ sqs.peek({limit: 1, timeout: 20})
 
 ## API Docs
 
-For further information on Bloody Simple SQS methods please refer to the [API Docs](/jmike/bloody-simple-sqs/blob/master/API.md).
+For further information on Bloody Simple SQS methods please refer to the [API Docs](https://github.com/jmike/bloody-simple-sqs/blob/master/API.md).
 
 ## Contributors
 
