@@ -3,6 +3,7 @@
 ## Table of Contents
 
 * [Intro](#intro)
+* [Constructor](#constructor)
 * [Methods](#methods)
   * [add(payload, [callback])](#add)
   * [createReadStream()](#createReadStream)
@@ -19,6 +20,29 @@ Install bloody-simple-sqs using npm.
 
 ```
 $ npm install bloody-simple-sqs
+```
+## Constructor
+
+Creates a new bloody simple SQS instance.
+
+##### Parameters
+
+* `options` _(object)_ SQS client options (required)
+  * `queueName` _(string)_ the name of the queue (required)
+  * `accessKeyId` _(string)_ the AWS access key (required)
+  * `secretAccessKey` _(string)_ the AWS secret access key (required)
+  * `region` _(string)_ optional AWS region; defaults to "us-east-1"
+
+##### Example
+
+```javascript
+var SQS = require('bloody-simple-sqs');
+
+var sqs = new SQS({
+ queueName: 'i-am-queue',
+ accessKeyId: 'AKIA-access-key',
+ secretAccessKey: 'secret-access-key'
+});
 ```
 
 ## Methods
