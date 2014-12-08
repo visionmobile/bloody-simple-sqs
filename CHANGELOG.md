@@ -1,3 +1,7 @@
+## 0.2.7 - 2014-12-08
+
+* Added extended markdown docs.
+
 ## 0.2.6 - 2014-11-29
 
 * Expose #getUrl() method.
