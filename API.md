@@ -13,6 +13,7 @@
   * [poll([options], [callback])](#poll)
   * [remove(receiptHandle, [callback])](#remove)
   * [size([callback])](#size)
+* [Notes](#notes)
 
 ## Intro
 
@@ -286,4 +287,32 @@ sqs.size()
   .catch(function (err) {
     console.error(err);
   });
+```
+
+## Notes
+
+### Promises VS Callbacks
+
+Bloody simple SQS exposes both promises and callback interfaces. Choose the coding style that suits you best.
+
+```javascript
+sqs.add('hello')
+  .then(function (data) {
+    console.log('Message sucessfully appended to queue with id ' + data.id); 
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
+The above could be rewritten as:
+
+```javascript
+sqs.add('hello', function (err, data) {
+  if (err) {
+    console.error(err);
+    return;
+  }
+
+  console.log('Message sucessfully appended to queue with id ' + data.id); 
+});
 ```
