@@ -21,6 +21,13 @@ Install bloody-simple-sqs using npm.
 ```
 $ npm install bloody-simple-sqs
 ```
+
+Reference bloody-simple-sqs in your code.
+
+```javascript
+var SQS = require('bloody-simple-sqs');
+```
+
 ## Constructor
 
 Creates a new bloody simple SQS instance.
