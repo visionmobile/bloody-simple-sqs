@@ -5,7 +5,7 @@ A bloody simple SQS client for Node.js, based on the official AWS sdk.
 #### Features
 
 * Exposes promise and callback interfaces;
-* Battle-tested under heavy load in production;
+* Battle-tested under heavy load;
 * Distributed under the MIT license, i.e. you can use it in open-source and commercial projects.
 
 ## Installation
@@ -45,10 +45,10 @@ sqs.add({a: 1, b: 2})
   });
 ```
 
-#### Retrieve message from queue
+#### Retrieve and remove message from queue
 
 ```javascript
-sqs.peek({limit: 1, timeout: 20})
+sqs.poll({limit: 1, timeout: 20})
   .then(function (message) {
     if (message) {
       console.log(message); 
