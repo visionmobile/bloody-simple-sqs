@@ -89,7 +89,7 @@ BloodySimpleSQS.prototype._contructPromise = function (resolver) {
 
 /**
  * Retrieves the URL of the queue from AWS.
- * @param {function} [callback] an optional callback function with arguments (err, url).
+ * @param {function} [callback] an optional callback function with (err, url) arguments.
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.getUrl = function (callback) {
@@ -114,7 +114,7 @@ BloodySimpleSQS.prototype.getUrl = function (callback) {
 
 /**
  * Returns the number of messages in the queue.
- * @param {function} [callback] an optional callback function with arguments (err, n).
+ * @param {function} [callback] an optional callback function with (err, size) arguments.
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.size = function (callback) {
@@ -143,7 +143,7 @@ BloodySimpleSQS.prototype.size = function (callback) {
 
 /**
  * Indicates whether the queue is empty.
- * @param {function} [callback] an optional callback function with arguments (err, empty).
+ * @param {function} [callback] an optional callback function (err, isEmpty) arguments.
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.isEmpty = function (callback) {
@@ -157,7 +157,7 @@ BloodySimpleSQS.prototype.isEmpty = function (callback) {
 /**
  * Appends a new message, with the given payload, at the end of the queue.
  * @param {(boolean|string|number|object|null)} payload the message payload.
- * @param {function} [callback] an optional callback function, i.e. function (err, response).
+ * @param {function} [callback] an optional callback function with (err, response) arguments.
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.add = function (payload, callback) {
@@ -188,7 +188,7 @@ BloodySimpleSQS.prototype.add = function (payload, callback) {
  * @param {object} [options] optional request options.
  * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
  * @param {number} [options.limit=1] maximum number of messages to return; must be between 1 and 10.
- * @param {function} [callback] an optional call back function, i.e. function (err, message).
+ * @param {function} [callback] an optional callback function with (err, message) arguments.
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.peek = function (options, callback) {
@@ -250,7 +250,7 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
 /**
  * Removes the designated message from queue.
  * @param {string} receiptHandle the message's receipt handle, as given on peek().
- * @param {function} [callback] an optional callback function, i.e. function (err).
+ * @param {function} [callback] an optional callback function with (err) arguments.
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
@@ -274,7 +274,7 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
 /**
  * Retrieves and removes the head of the queue, or returns null if queue is empty.
  * @param {object} [options] optional request options.
- * @param {function} [callback] an optional call back function, i.e. function (err, message).
+ * @param {function} [callback] an optional callback function with (err, message) arguments.
  * @see {@link peek} for further information on the "options" param.
  * @return {Promise}
  */
@@ -289,6 +289,28 @@ BloodySimpleSQS.prototype.poll = function (options, callback) {
       return null;
     })
     .nodeify(callback);
+};
+
+/**
+ * Removes all messages from queue.
+ * @param {function} [callback] an optional callback function with (err) arguments.
+ * @return {Promise}
+ */
+BloodySimpleSQS.prototype.clear = function (callback) {
+  var self = this, params, resolver;
+
+  params = {
+    QueueUrl: self.queueUrl
+  };
+
+  resolver = function(resolve, reject) {
+    self.sqs.purgeQueue(params, function(err) {
+      if (err) return reject(err);
+      resolve();
+    });
+  };
+
+  return this._contructPromise(resolver).nodeify(callback);
 };
 
 /**
