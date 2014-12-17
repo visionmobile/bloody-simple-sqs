@@ -6,6 +6,7 @@
 * [Constructor](#constructor)
 * [Methods](#methods)
   * [add(payload, [callback])](#add)
+  * [clear([callback])](#clear)
   * [createReadStream()](#createReadStream)
   * [getUrl([callback])](#getUrl)
   * [isEmpty([callback])](#isEmpty)
@@ -78,6 +79,30 @@ A promise resolving to an object with the following properties.
 sqs.add({a: 1, b: 2})
   .then(function (data) {
     console.log('Message sucessfully appended to queue with id ' + data.id); 
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
+
+### <a name="clear" href="clear">#</a>clear([callback]) -> promise
+
+Removes all messages from queue.
+
+##### Parameters
+
+* `callback` _(function)_ optional callback function with (err) arguments
+
+##### Returns
+
+A promise.
+
+##### Example
+
+```javascript
+sqs.clear()
+  .then(function () {
+    console.log('All messages removed'); 
   })
   .catch(function (err) {
     console.error(err);
