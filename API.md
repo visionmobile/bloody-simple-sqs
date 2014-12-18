@@ -47,7 +47,7 @@ Creates a new bloody simple SQS instance.
 ```javascript
 var SQS = require('bloody-simple-sqs');
 
-var sqs = new SQS({
+var queue = new SQS({
  queueName: 'i-am-queue',
  accessKeyId: 'AKIA-access-key',
  secretAccessKey: 'secret-access-key'
@@ -76,9 +76,9 @@ A promise resolving to an object with the following properties.
 ##### Example
 
 ```javascript
-sqs.add({a: 1, b: 2})
+queue.add({a: 1, b: 2})
   .then(function (data) {
-    console.log('Message sucessfully appended to queue with id ' + data.id); 
+    console.log('Message sucessfully appended to queue with id ' + data.id);
   })
   .catch(function (err) {
     console.error(err);
@@ -100,9 +100,9 @@ A promise.
 ##### Example
 
 ```javascript
-sqs.clear()
+queue.clear()
   .then(function () {
-    console.log('All messages removed'); 
+    console.log('All messages removed');
   })
   .catch(function (err) {
     console.error(err);
@@ -120,7 +120,7 @@ A node.js [Readable Stream](http://nodejs.org/api/stream.html#stream_class_strea
 ##### Example
 
 ```javascript
-var rs = sqs.createReadStream();
+var rs = queue.createReadStream();
 
 rs.on('readable', function() {
   console.log(rs.read())
@@ -150,7 +150,7 @@ A promise resolving to a URL string.
 ##### Example
 
 ```javascript
-sqs.getUrl()
+queue.getUrl()
   .then(function (url) {
     // do something with url
   })
@@ -174,7 +174,7 @@ A promise resolving to a boolean flag.
 ##### Example
 
 ```javascript
-sqs.isEmpty()
+queue.isEmpty()
   .then(function (isEmpty) {
     if (isEmpty) {
       console.log('The queue is empty');
@@ -209,10 +209,10 @@ A promise resolving to a message object with the following properties, or null i
 ##### Example
 
 ```javascript
-sqs.peek({limit: 1, timeout: 20})
+queue.peek({limit: 1, timeout: 20})
   .then(function (message) {
     if (message) {
-      console.log(JSON.stringify(message)); 
+      console.log(JSON.stringify(message));
     } else {
       console.log('The queue is empty');
     }
@@ -245,10 +245,10 @@ A promise resolving to a message object with the following properties, or null i
 ##### Example
 
 ```javascript
-sqs.poll({limit: 1, timeout: 20})
+queue.poll({limit: 1, timeout: 20})
   .then(function (message) {
     if (message) {
-      console.log(JSON.stringify(message)); 
+      console.log(JSON.stringify(message));
     } else {
       console.log('The queue is empty');
     }
@@ -274,14 +274,14 @@ A promise resolving to no arguments.
 ##### Example
 
 ```javascript
-sqs.peek({limit: 1, timeout: 20})
+queue.peek()
   .then(function (message) {
     if (message) {
       console.log('Removing message from queue');
 
-      return sqs.remove(message.receiptHandle)
+      return queue.remove(message.receiptHandle)
        .then(function () {
-         console.log('Message successfully removed from queue'); 
+         console.log('Message successfully removed from queue');
        })
     }
   })
@@ -305,7 +305,7 @@ A promise resolving to the number of messages in the queue.
 ##### Example
 
 ```javascript
-sqs.size()
+queue.size()
   .then(function (num) {
     console.log(num + ' message(s) found in queue');
   })
@@ -321,9 +321,9 @@ sqs.size()
 Bloody simple SQS exposes both promise and callback interfaces. Choose the coding style that suits you best.
 
 ```javascript
-sqs.add('hello')
+queue.add('hello')
   .then(function (data) {
-    console.log('Message sucessfully appended to queue with id ' + data.id); 
+    console.log('Message sucessfully appended to queue with id ' + data.id);
   })
   .catch(function (err) {
     console.error(err);
@@ -332,12 +332,12 @@ sqs.add('hello')
 The above could be rewritten as:
 
 ```javascript
-sqs.add('hello', function (err, data) {
+queue.add('hello', function (err, data) {
   if (err) {
     console.error(err);
     return;
   }
 
-  console.log('Message sucessfully appended to queue with id ' + data.id); 
+  console.log('Message sucessfully appended to queue with id ' + data.id);
 });
 ```
