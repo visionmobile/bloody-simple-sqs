@@ -1,12 +1,13 @@
 # Bloody simple SQS
 
-A bloody simple SQS client for Node.js, based on the official AWS sdk.
+A bloody simple Amazon SQS client for Node.js, based on the official AWS SDK.
 
 #### Features
 
-* Exposes promise and callback interfaces;
+* Provides simple and sane interface to Amazon SQS;
+* Exposes promise and callback API;
 * Battle-tested under heavy load;
-* Distributed under the MIT license, i.e. you can use it in open-source and commercial projects.
+* Distributed under the MIT license.
 
 ## Installation
 
@@ -25,7 +26,7 @@ $ npm install bloody-simple-sqs
 ```javascript
 var SQS = require('bloody-simple-sqs');
 
-var sqs = new SQS({
+var queue = new SQS({
  queueName: 'i-am-queue',
  accessKeyId: 'AKIA-access-key',
  secretAccessKey: 'secret-access-key',
@@ -36,7 +37,7 @@ var sqs = new SQS({
 #### Append message to queue
 
 ```javascript
-sqs.add({a: 1, b: 2})
+queue.add({a: 1, b: 2})
   .then(function (data) {
     console.log('Message sucessfully appended to queue with id ' + data.id); 
   })
@@ -48,12 +49,12 @@ sqs.add({a: 1, b: 2})
 #### Retrieve and remove message from queue
 
 ```javascript
-sqs.poll({limit: 1, timeout: 20})
+queue.poll({limit: 1, timeout: 20})
   .then(function (message) {
     if (message) {
       console.log(message); 
     } else {
-      console.log('The queue is empty');
+      console.log('The queue has no messages');
     }
   })
   .catch(function (err) {
@@ -73,8 +74,8 @@ Author: [Dimitrios C. Michalakos](https://github.com/jmike)
 
 This project would not be without the extraordinary work of:
 
-* Amazon Web Services (https://github.com/aws/aws-sdk-js)
 * Petka Antonov (https://github.com/petkaantonov/bluebird)
+* Nicolas Morel (https://github.com/hapijs/joi)
 
 ## License
 
