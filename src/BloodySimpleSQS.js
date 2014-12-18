@@ -1,9 +1,9 @@
-var events = require('events'),
-  util = require('util'),
-  Readable = require('stream').Readable,
-  _ = require('lodash'),
-  AWS = require('aws-sdk'),
-  Promise = require('bluebird');
+var events = require('events');
+var util = require('util');
+var Readable = require('stream').Readable;
+var Joi = require('joi');
+var AWS = require('aws-sdk');
+var Promise = require('bluebird');
 
 /**
  * Constructs and returns a new bloody simple SQS client.
@@ -15,47 +15,39 @@ var events = require('events'),
  * @constructor
  */
 function BloodySimpleSQS(options) {
-  var queueName, accessKeyId, secretAccessKey, region;
+  var schema;
+  var validationResult;
 
-  if (!_.isObject(options)) {
-    throw new Error('Invalid options param; expected object, received ' + typeof(options));
-  }
+  // validate options
+  schema = Joi.object()
+    .keys({
+      queueName: Joi.string().strict().required(),
+      accessKeyId: Joi.string().strict().required(),
+      secretAccessKey: Joi.string().strict().required(),
+      region: Joi.string().default('us-east-1').strict(),
+    })
+    .label('options');
 
-  queueName = options.queueName;
-  accessKeyId = options.accessKeyId;
-  secretAccessKey = options.secretAccessKey;
-  region = options.region || 'us-east-1';
+  validationResult = Joi.validate(options, schema);
 
-  if (!_.isString(queueName)) {
-    throw new Error('Invalid queueName option; expected string, received ' + typeof(queueName));
-  }
+  if (validationResult.error) throw validationResult.error;
+  options = validationResult.value;
 
-  if (!_.isString(accessKeyId)) {
-    throw new Error('Invalid accessKeyId option; expected string, received ' + typeof(accessKeyId));
-  }
-
-  if (!_.isString(secretAccessKey)) {
-    throw new Error('Invalid secretAccessKey option; expected string, received ' + typeof(secretAccessKey));
-  }
-
-  if (!_.isString(region)) {
-    throw new Error('Invalid region option; expected string, received ' + typeof(region));
-  }
-
-  this.queueName = queueName;
+  // init aws-sdk client
+  this.queueName = options.queueName;
 
   this.sqs = new AWS.SQS({
-    queueName: queueName,
-    accessKeyId: accessKeyId,
-    secretAccessKey: secretAccessKey,
-    region: region,
+    queueName: options.queueName,
+    accessKeyId: options.accessKeyId,
+    secretAccessKey: options.secretAccessKey,
+    region: options.region,
     apiVersion: '2012-11-05'
   });
 
   events.EventEmitter.call(this);
-  this.setMaxListeners(99);
+  this.setMaxListeners(999);
 
-  // load data from aws and emit ready
+  // load data and emit ready
   this.getUrl()
     .bind(this)
     .then(function (url) {
@@ -76,12 +68,12 @@ util.inherits(BloodySimpleSQS, events.EventEmitter);
  * @private
  */
 BloodySimpleSQS.prototype._contructPromise = function (resolver) {
-  var self = this;
+  var _this = this;
 
   return new Promise(function(resolve, reject) {
-    if (self.isReady) return resolver(resolve, reject);
+    if (_this.isReady) return resolver(resolve, reject);
 
-    self.once('ready', function () {
+    _this.once('ready', function () {
       resolver(resolve, reject);
     });
   });
@@ -93,17 +85,19 @@ BloodySimpleSQS.prototype._contructPromise = function (resolver) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.getUrl = function (callback) {
-  var self = this, params, resolver;
+  var _this = this;
+  var params;
+  var resolver;
 
-  // check if queue URL is already know
+  // check if queue URL is already known
   if (this.isReady) return Promise.resolve(this.queueUrl).nodeify(callback);
 
   params = {
-    QueueName: self.queueName
+    QueueName: _this.queueName
   };
 
   resolver = function(resolve, reject) {
-    self.sqs.getQueueUrl(params, function(err, response) {
+    _this.sqs.getQueueUrl(params, function(err, response) {
       if (err) return reject(err);
       resolve(response.QueueUrl);
     });
@@ -118,15 +112,16 @@ BloodySimpleSQS.prototype.getUrl = function (callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.size = function (callback) {
-  var self = this, params, resolver;
-
-  params = {
-    QueueUrl: self.queueUrl,
-    AttributeNames: ['ApproximateNumberOfMessages', 'ApproximateNumberOfMessagesNotVisible']
-  };
+  var _this = this;
+  var resolver;
 
   resolver = function(resolve, reject) {
-    self.sqs.getQueueAttributes(params, function(err, response) {
+    var params = {
+      QueueUrl: _this.queueUrl,
+      AttributeNames: ['ApproximateNumberOfMessages', 'ApproximateNumberOfMessagesNotVisible']
+    };
+
+    _this.sqs.getQueueAttributes(params, function(err, response) {
       var messagesCount;
 
       if (err) return reject(err);
@@ -161,15 +156,26 @@ BloodySimpleSQS.prototype.isEmpty = function (callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.add = function (payload, callback) {
-  var self = this, params, resolver;
+  var _this = this;
+  var schema;
+  var resolver;
 
-  params = {
-    QueueUrl: self.queueUrl,
-    MessageBody: JSON.stringify(payload)
-  };
+  // validate payload
+  schema = Joi.alternatives()
+    .required()
+    .strict()
+    .label('payload')
+    .try(Joi.number(), Joi.string(), Joi.object().allow(null), Joi.boolean());
+
+  Joi.assert(payload, schema);
 
   resolver = function(resolve, reject) {
-    self.sqs.sendMessage(params, function(err, response) {
+    var params = {
+      QueueUrl: _this.queueUrl,
+      MessageBody: JSON.stringify(payload)
+    };
+
+    _this.sqs.sendMessage(params, function(err, response) {
       if (err) return reject(err);
 
       resolve({
@@ -192,36 +198,41 @@ BloodySimpleSQS.prototype.add = function (payload, callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.peek = function (options, callback) {
-  var self = this, params, resolver;
+  var _this = this;
+  var schema;
+  var validationResult;
+  var resolver;
 
   // handle optional "options" param
-  if (!_.isPlainObject(options)) {
-    if (_.isFunction(options)) {
-      callback = options;
-    } else if (!_.isUndefined(options)) {
-      return Promise.reject(new Error(
-        'Invalid options param; ' +
-        'expected object, received ' + typeof(options)
-      )).nodeify(callback);
-    }
-
+  if (typeof(options) === 'function') {
+    callback = options;
+    options = {};
+  } else if (options === undefined) {
     options = {};
   }
 
-  // set options defaults
-  options = _.defaults(options, {
-    timeout: 0,
-    limit: 1
-  });
+  // validate options
+  schema = Joi.object()
+    .keys({
+      timeout: Joi.number().min(0).max(20).default(0).strict(),
+      limit: Joi.number().min(1).max(10).default(1).strict()
+    })
+    .label('options');
 
-  params = {
-    QueueUrl: self.queueUrl,
-    MaxNumberOfMessages: options.limit,
-    WaitTimeSeconds: options.timeout
-  };
+  validationResult = Joi.validate(options, schema);
 
+  if (validationResult.error) throw validationResult.error;
+  options = validationResult.value;
+
+  // set promise resolver
   resolver = function(resolve, reject) {
-    self.sqs.receiveMessage(params, function(err, response) {
+    var params = {
+      QueueUrl: _this.queueUrl,
+      MaxNumberOfMessages: options.limit,
+      WaitTimeSeconds: options.timeout
+    };
+
+    _this.sqs.receiveMessage(params, function(err, response) {
       var messages;
 
       if (err) return reject(err);
@@ -254,15 +265,26 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
-  var self = this, params, resolver;
+  var _this = this;
+  var schema;
+  var resolver;
 
-  params = {
-    QueueUrl: self.queueUrl,
-    ReceiptHandle: receiptHandle
-  };
+  // validate receipt handle
+  schema = Joi.string()
+    .strict()
+    .required()
+    .label('receipt handle');
 
+  Joi.assert(receiptHandle, schema);
+
+  // set promise resolver
   resolver = function(resolve, reject) {
-    self.sqs.deleteMessage(params, function(err) {
+    var params = {
+      QueueUrl: _this.queueUrl,
+      ReceiptHandle: receiptHandle
+    };
+
+    _this.sqs.deleteMessage(params, function(err) {
       if (err) return reject(err);
       resolve();
     });
@@ -285,7 +307,6 @@ BloodySimpleSQS.prototype.poll = function (options, callback) {
       if (message) {
         return this.remove(message.receiptHandle).return(message);
       }
-
       return null;
     })
     .nodeify(callback);
@@ -297,14 +318,15 @@ BloodySimpleSQS.prototype.poll = function (options, callback) {
  * @return {Promise}
  */
 BloodySimpleSQS.prototype.clear = function (callback) {
-  var self = this, params, resolver;
-
-  params = {
-    QueueUrl: self.queueUrl
-  };
+  var _this = this;
+  var resolver;
 
   resolver = function(resolve, reject) {
-    self.sqs.purgeQueue(params, function(err) {
+    var params = {
+      QueueUrl: _this.queueUrl
+    };
+
+    _this.sqs.purgeQueue(params, function(err) {
       if (err) return reject(err);
       resolve();
     });
@@ -318,20 +340,17 @@ BloodySimpleSQS.prototype.clear = function (callback) {
  * @return {stream.Readable}
  */
 BloodySimpleSQS.prototype.createReadStream = function () {
-  var self = this,
-    rs = new Readable({
-      highWaterMark: 1, // as little as possible
-      objectMode: true,
-      encoding: 'utf8'
-    });
+  var _this = this;
+  var rs = new Readable({
+    highWaterMark: 1, // as little as possible
+    objectMode: true,
+    encoding: 'utf8'
+  });
 
   rs._read = function () {
-    self.poll()
+    _this.poll()
       .then(function (message) {
-        if (!message) {
-          return rs.push(null); // end
-        }
-
+        if (!message) return rs.push(null); // end
         rs.push(message.body, 'utf8');
       })
       .catch(function (err) {

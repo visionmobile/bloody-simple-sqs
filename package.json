@@ -8,7 +8,7 @@
   },
   "main": "src/BloodySimpleSQS.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/index.js"
   },
   "keywords": [
     "sqs",
@@ -24,11 +24,11 @@
   "dependencies": {
     "aws-sdk": "^2.1.2",
     "bluebird": "^2.3.11",
-    "dotenv": "~0.4.0",
-    "lodash": "~2.4.1"
+    "joi": "^5.0.2"
   },
   "devDependencies": {
     "chai": "^1.10.0",
+    "dotenv": "^0.4.0",
     "mocha": "^2.0.1"
   }
 }
