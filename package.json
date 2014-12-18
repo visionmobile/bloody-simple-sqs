@@ -1,7 +1,7 @@
 {
   "name": "bloody-simple-sqs",
   "version": "0.3.0",
-  "description": "A bloody simple interface to SQS, based on the official AWS sdk.",
+  "description": "A bloody simple interface to Amazon SQS, based on the official AWS SDK.",
   "repository": {
     "type": "git",
     "url": "git://github.com/jmike/bloody-simple-sqs.git"
