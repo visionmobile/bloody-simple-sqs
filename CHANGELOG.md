@@ -1,3 +1,9 @@
+## 0.3.0 - 2014-12-18
+
+* Replace validation logic using Joi@5.0.2
+* Remove lodash dependency, that was previously being used for validation
+* Introduce unit tests using mocha/chai
+
 ## 0.2.8 - 2014-12-17
 
 * Expose #clear() method to remove all messages from queue
