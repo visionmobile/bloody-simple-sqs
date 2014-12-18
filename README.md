@@ -4,7 +4,7 @@ A bloody simple Amazon SQS client for Node.js, based on the official AWS SDK.
 
 #### Features
 
-* Provides simple and sane interface to Amazon SQS;
+* Simple and sane interface to Amazon SQS;
 * Exposes promise and callback API;
 * Battle-tested under heavy load;
 * Distributed under the MIT license.
