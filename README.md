@@ -68,9 +68,7 @@ For further information on Bloody Simple SQS methods please refer to the [API Do
 
 ## Philosophy
 
-Amazon SQS is an excellent queue service, simpler than the well-known RabbitMQ, but still very powerfull, reliable and inexpensive. AWS has already provided a Node.js SDK - yet it's complex and repetitive.
-
-Bloody-simple-sqs aims to hide the complexity under a simple well defined API, so that the developers write less code and focus on using SQS, rather than understandind the internal mechanisms of AWS-SDK.
+Amazon Simple Queue Service is an excellent queue-as-a-service solution, simpler than the notorious RabbitMQ, yet powerfull, reliable and inexpensive. AWS provides a Node.js SDK, but it's complex and repetitive. Bloody-simple-sqs aims to hide the complexity under a simple well-defined API, so that the developers focus on using the SQS, rather than understanding the internal mechanisms of AWS-SDK.
 
 ## Acknowledgements
 
