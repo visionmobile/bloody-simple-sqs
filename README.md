@@ -2,6 +2,8 @@
 
 A bloody simple Amazon SQS client for Node.js, based on the official AWS SDK.
 
+[ ![Build Status for visionmobile/bloody-simple-sqs](https://codeship.com/projects/e66d6350-aebb-0132-cc2e-72504bd694d9/status?branch=master)](https://codeship.com/projects/68954)
+
 #### Features
 
 * Simple and sane interface to Amazon SQS;
