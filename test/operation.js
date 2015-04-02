@@ -7,7 +7,7 @@ var SQS = require('../');
 describe('BloodySimpleSQS', function () {
 
   var queue = new SQS({
-    queueName: 'bloody-simple-sqs-test',
+    queueName: 'bloody-simple-sqs',
     accessKeyId: process.env.ACCESS_KEY_ID,
     secretAccessKey: process.env.SECRET_ACCESS_KEY
   });

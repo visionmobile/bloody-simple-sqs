@@ -1,9 +1,8 @@
-var path = require('path'),
-  Mocha = require('mocha'),
-  mocha;
+var path = require('path');
+var Mocha = require('mocha');
 
 // init mocha
-mocha = new Mocha({
+var mocha = new Mocha({
   reporter: 'spec',
   timeout: 30000 // 30 secs
 });

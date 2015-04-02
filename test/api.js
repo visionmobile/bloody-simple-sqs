@@ -7,7 +7,7 @@ var SQS = require('../');
 describe('BloodySimpleSQS API', function () {
 
   var queue = new SQS({
-    queueName: 'bloody-simple-sqs-test',
+    queueName: 'bloody-simple-sqs',
     accessKeyId: process.env.ACCESS_KEY_ID,
     secretAccessKey: process.env.SECRET_ACCESS_KEY
   });
@@ -23,7 +23,7 @@ describe('BloodySimpleSQS API', function () {
   describe('#add()', function () {
 
     it('throws error when payload is undefined', function () {
-      assert.throws(function () {queue.add();}, /payload is required/i);
+      assert.throws(function () {queue.add();}, /invalid payload param/i);
     });
 
   });
@@ -31,9 +31,9 @@ describe('BloodySimpleSQS API', function () {
   describe('#peek()', function () {
 
     it('throws error when options is invalid', function () {
-      assert.throws(function () {queue.peek(null);}, /options must be an object/i);
-      assert.throws(function () {queue.peek(1);}, /options must be an object/i);
-      assert.throws(function () {queue.peek('str');}, /options must be an object/i);
+      assert.throws(function () {queue.peek(null);}, /invalid options param/i);
+      assert.throws(function () {queue.peek(1);}, /invalid options param/i);
+      assert.throws(function () {queue.peek('str');}, /invalid options param/i);
     });
 
     it('accepts timeout and limit options', function (done) {
@@ -49,9 +49,9 @@ describe('BloodySimpleSQS API', function () {
   describe('#poll()', function () {
 
     it('throws error when options is invalid', function () {
-      assert.throws(function () {queue.poll(null);}, /options must be an object/i);
-      assert.throws(function () {queue.poll(1);}, /options must be an object/i);
-      assert.throws(function () {queue.poll('str');}, /options must be an object/i);
+      assert.throws(function () {queue.poll(null);}, /invalid options param/i);
+      assert.throws(function () {queue.poll(1);}, /invalid options param/i);
+      assert.throws(function () {queue.poll('str');}, /invalid options param/i);
     });
 
   });
@@ -59,13 +59,13 @@ describe('BloodySimpleSQS API', function () {
   describe('#remove()', function () {
 
     it('throws error when receiptHandle is undefined', function () {
-      assert.throws(function () {queue.remove();}, /receipt handle is required/i);
+      assert.throws(function () {queue.remove();}, /invalid receiptHandle param/i);
     });
 
     it('throws error when receiptHandle is invalid', function () {
-      assert.throws(function () {queue.remove(null);}, /receipt handle must be a string/i);
-      assert.throws(function () {queue.remove(1);}, /receipt handle must be a string/i);
-      assert.throws(function () {queue.remove({});}, /receipt handle must be a string/i);
+      assert.throws(function () {queue.remove(null);}, /invalid receiptHandle param/i);
+      assert.throws(function () {queue.remove(1);}, /invalid receiptHandle param/i);
+      assert.throws(function () {queue.remove({});}, /invalid receiptHandle param/i);
       // assert.throws(function () {queue.remove(function () {});}, /receipt handle must be a string/i);
     });
 
