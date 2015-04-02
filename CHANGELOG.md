@@ -1,3 +1,9 @@
+## 0.3.1 - 2015-04-02
+
+* Update internal AWS SDK library
+* Replace Joi validation with lodash
+* Implement Codeship CI
+
 ## 0.3.0 - 2014-12-18
 
 * Replace validation logic using Joi@5.0.2
