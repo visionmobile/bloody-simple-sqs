@@ -39,7 +39,7 @@ var queue = new SQS({
 ```javascript
 queue.add({a: 1, b: 2})
   .then(function (data) {
-    console.log('Message sucessfully appended to queue with id ' + data.id); 
+    console.log('Message sucessfully appended to queue with id ' + data.id);
   })
   .catch(function (err) {
     console.error(err);
@@ -52,7 +52,7 @@ queue.add({a: 1, b: 2})
 queue.poll({limit: 1, timeout: 20})
   .then(function (message) {
     if (message) {
-      console.log(message); 
+      console.log(message);
     } else {
       console.log('The queue has no messages');
     }
@@ -64,18 +64,11 @@ queue.poll({limit: 1, timeout: 20})
 
 ## API Docs
 
-For further information on Bloody Simple SQS methods please refer to the [API Docs](https://github.com/jmike/bloody-simple-sqs/blob/master/API.md).
+For further information on Bloody Simple SQS methods please refer to the [API Docs](https://github.com/jmike/bloody-simple-sqs/blob/master/docs/API.md).
 
 ## Philosophy
 
 Amazon Simple Queue Service is an excellent queue-as-a-service solution, simpler than the notorious RabbitMQ, yet powerfull, reliable and inexpensive. AWS provides a Node.js SDK, but it's complex and repetitive. Bloody-simple-sqs aims to hide the complexity under a simple well-defined API, so that the developers focus on using the SQS, rather than understanding the internal mechanisms of AWS-SDK.
-
-## Acknowledgements
-
-This project would not be without the extraordinary work of:
-
-* Petka Antonov (https://github.com/petkaantonov/bluebird)
-* Nicolas Morel (https://github.com/hapijs/joi)
 
 ## License
 
