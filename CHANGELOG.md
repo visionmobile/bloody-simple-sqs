@@ -1,3 +1,7 @@
+## 0.3.2 - 2015-04-23
+
+* Update internal aws-sdk to v.2.1.24
+
 ## 0.3.1 - 2015-04-02
 
 * Update internal AWS SDK library
