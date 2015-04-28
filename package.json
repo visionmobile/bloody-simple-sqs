@@ -23,7 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.1.26",
-    "bluebird": "^2.9.24",
+    "bluebird": "^2.9.25",
     "lodash": "^3.7.0",
     "node-uuid": "^1.4.3",
     "type-of": "^2.0.1"
