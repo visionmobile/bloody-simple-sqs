@@ -180,7 +180,11 @@ BloodySimpleSQS.prototype.add = function (payload, callback) {
     !_.isBoolean(payload) &&
     !_.isNull(payload)
   ) {
-    throw new Error('Invalid payload param; expected number, string, boolean, object or null, received ' + type(payload));
+    return Promise.reject(new Error(
+      'Invalid payload argument; ' +
+      'expected number, string, boolean, object or null, received ' + type(payload)
+    ))
+      .nodeify(callback);
   }
 
   resolver = function(resolve, reject) {
@@ -257,7 +261,7 @@ BloodySimpleSQS.prototype.addAll = function (arr, callback) {
  * Retrieves, but does not remove, the head of the queue.
  * @param {Object} [options] optional request options.
  * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
- * @param {number} [options.limit=1] maximum number of messages to return; must be between 1 and 10.
+ * @param {number} [options.limit=1] maximum number of messages to return.
  * @param {Function} [callback] an optional callback function with (err, message) arguments.
  * @return {Promise}
  */
@@ -265,7 +269,6 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
   var _this = this;
   var resolver;
 
-  // handle optional "options" param
   if (_.isFunction(options)) {
     callback = options;
     options = {};
@@ -274,24 +277,36 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
   }
 
   if (!_.isPlainObject(options)) {
-    throw new Error('Invalid options param; expected object, received ' + type(options));
+    return Promise.reject(new Error('Invalid options argument; expected object, received ' + type(options)))
+      .nodeify(callback);
   }
 
-  // set default options
   options = _.defaults(options, {
     timeout: 0,
     limit: 1
   });
 
   if (!_.isNumber(options.timeout)) {
-    throw new Error('Invalid timeout option; expected number, received ' + type(options.timeout));
+    return Promise.reject(new Error('Invalid timeout option; expected number, received ' + type(options.timeout)))
+      .nodeify(callback);
   }
 
   if (!_.isNumber(options.limit)) {
-    throw new Error('Invalid limit option; expected number, received ' + type(options.limit));
+    return Promise.reject(new Error('Invalid limit option; expected number, received ' + type(options.limit)))
+      .nodeify(callback);
   }
 
-  // set promise resolver
+  if (options.limit > 10) {
+    return Promise.map(new Array(Math.ceil(options.limit / 10)), function (e, i) {
+      return _this.peek({
+        timeout: options.timeout,
+        limit: options.limit - (10 * (i + 1)) < 10 ? options.limit % 10 : 10
+      });
+    })
+      .then(_.flatten)
+      .nodeify(callback);
+  }
+
   resolver = function(resolve, reject) {
     var params = {
       QueueUrl: _this.queueUrl,
@@ -337,7 +352,8 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
   var resolver;
 
   if (!_.isString(receiptHandle)) {
-    throw new Error('Invalid receiptHandle param; expected string, received ' + type(receiptHandle));
+    return Promise.reject(new Error('Invalid receiptHandle param; expected string, received ' + type(receiptHandle)))
+      .nodeify(callback);
   }
 
   // set promise resolver
