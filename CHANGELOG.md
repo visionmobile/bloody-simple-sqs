@@ -1,3 +1,8 @@
+## 0.4.0-beta.1 - 2015-04-28
+
+* Introduce #addAll method to add messages in batches
+* Allow limit > 10 with #peek and #poll
+
 ## 0.3.2 - 2015-04-23
 
 * Update internal aws-sdk to v.2.1.24
