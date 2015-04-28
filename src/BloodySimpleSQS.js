@@ -3,6 +3,7 @@ var util = require('util');
 var Readable = require('stream').Readable;
 var AWS = require('aws-sdk');
 var Promise = require('bluebird');
+var uuid = require('node-uuid');
 var _ = require('lodash');
 var type = require('type-of');
 
@@ -164,7 +165,7 @@ BloodySimpleSQS.prototype.isEmpty = function (callback) {
 
 /**
  * Appends a new message, with the given payload, at the end of the queue.
- * @param {(Boolean|String|Number|Object|Null)} payload the message payload.
+ * @param {(Boolean|String|Number|Object|null)} payload the message payload.
  * @param {Function} [callback] an optional callback function with (err, response) arguments.
  * @return {Promise}
  */
@@ -196,6 +197,55 @@ BloodySimpleSQS.prototype.add = function (payload, callback) {
         body: payload,
         md5: response.MD5OfMessageBody
       });
+    });
+  };
+
+  return this._contructPromise(resolver)
+    .nodeify(callback);
+};
+
+/**
+ * Appends all the elements of the specified array as messages to the queue.
+ * @param {Array} arr an array og elements to append.
+ * @param {Function} [callback] an optional callback function with (err, response) arguments.
+ * @return {Promise}
+ */
+BloodySimpleSQS.prototype.addAll = function (arr, callback) {
+  var _this = this;
+  var resolver;
+
+  if (!_.isArray(arr)) {
+    return Promise.reject(new Error('Invalid arr argument; expected array, received ' + type(arr)))
+      .nodeify(callback);
+  }
+
+  if (arr.length === 0) {
+    return Promise.reject(new Error('Invalid arr argument; array cannot be empty'))
+      .nodeify(callback);
+  }
+
+  if (arr.length > 10) {
+    return Promise.map(_.chunk(arr, 10), function (chunk) {
+      return _this.addAll(chunk);
+    })
+      .then(_.flatten)
+      .nodeify(callback);
+  }
+
+  resolver = function(resolve, reject) {
+    var params = {
+      QueueUrl: _this.queueUrl,
+      Entries: arr.map(function (e) {
+        return {
+          Id: uuid.v4(),
+          MessageBody: JSON.stringify(e)
+        };
+      })
+    };
+
+    _this.sqs.sendMessageBatch(params, function(err) {
+      if (err) return reject(err);
+      resolve();
     });
   };
 
