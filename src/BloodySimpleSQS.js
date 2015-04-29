@@ -297,10 +297,10 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
   }
 
   if (options.limit > 10) {
-    return Promise.map(new Array(Math.ceil(options.limit / 10)), function (e, i) {
+    return Promise.map(_.chunk(new Array(options.limit), 10), function (chunk) {
       return _this.peek({
         timeout: options.timeout,
-        limit: options.limit - (10 * (i + 1)) < 10 ? options.limit % 10 : 10
+        limit: chunk.length
       });
     })
       .then(_.flatten)
