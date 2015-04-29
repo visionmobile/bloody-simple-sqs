@@ -1,3 +1,7 @@
+## 0.4.0-beta.2 - 2015-04-30
+
+* Use lodash#chunk to process high limit values
+
 ## 0.4.0-beta.1 - 2015-04-28
 
 * Introduce #addAll method to add messages in batches
