@@ -18,13 +18,17 @@ describe('BloodySimpleSQS', function () {
     queue.getUrl()
       .then(function (url) {
         assert.isString(url);
+      })
 
+      .then(function () {
         return queue.size();
       })
       .then(function (n) {
         assert.isNumber(n);
         size = n;
+      })
 
+      .then(function () {
         return queue.add({v: 1});
       })
       .then(function (message) {
@@ -34,13 +38,18 @@ describe('BloodySimpleSQS', function () {
         assert.isObject(message.body);
         assert.property(message, 'md5');
         assert.isString(message.md5);
+      })
+      .delay(500)
 
+      .then(function () {
         return queue.size();
       })
       .then(function (n) {
         assert.strictEqual(n, size + 1);
         size = n;
+      })
 
+      .then(function () {
         return queue.peek();
       })
       .then(function (message) {
@@ -54,18 +63,23 @@ describe('BloodySimpleSQS', function () {
         assert.isString(message.md5);
         assert.property(message, 'receiptHandle');
         assert.isString(message.receiptHandle);
-
         return queue.remove(message.receiptHandle);
       })
+      .delay(500)
+
       .then(function () {
         return queue.size();
       })
       .then(function (n) {
         assert.strictEqual(n, size - 1);
         size = n;
+      })
 
+      .then(function () {
         return queue.clear();
       })
+      .delay(500)
+
       .then(function () {
         return queue.isEmpty();
       })
@@ -73,7 +87,8 @@ describe('BloodySimpleSQS', function () {
         assert.isBoolean(isEmpty);
         assert.strictEqual(isEmpty, true);
       })
-      .then(function () { done(); }).catch(done);
+
+      .then(done, done);
   });
 
 });

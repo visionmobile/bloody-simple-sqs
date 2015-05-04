@@ -4,7 +4,7 @@ var Mocha = require('mocha');
 // init mocha
 var mocha = new Mocha({
   reporter: 'spec',
-  timeout: 30000 // 30 secs
+  timeout: 60000 // 60 secs
 });
 
 // load the test files

@@ -22,18 +22,52 @@ describe('BloodySimpleSQS API', function () {
 
   describe('#add()', function () {
 
-    it('throws error when payload is undefined', function () {
-      assert.throws(function () {queue.add();}, /invalid payload param/i);
+    it('rejects with error when payload is undefined', function (done) {
+      queue.add()
+        .catch(function (err) {
+          assert.match(err, /invalid payload argument/i);
+          done();
+        });
+    });
+
+  });
+
+  describe('#addAll()', function () {
+
+    it('rejects with error when arr is undefined', function (done) {
+      queue.addAll()
+        .catch(function (err) {
+          assert.match(err, /invalid arr argument/i);
+          done();
+        });
     });
 
   });
 
   describe('#peek()', function () {
 
-    it('throws error when options is invalid', function () {
-      assert.throws(function () {queue.peek(null);}, /invalid options param/i);
-      assert.throws(function () {queue.peek(1);}, /invalid options param/i);
-      assert.throws(function () {queue.peek('str');}, /invalid options param/i);
+    it('rejects with error when options is null', function (done) {
+      queue.peek(null)
+        .catch(function (err) {
+          assert.match(err, /invalid options argument/i);
+          done();
+        });
+    });
+
+    it('rejects with error when options is number', function (done) {
+      queue.peek(123)
+        .catch(function (err) {
+          assert.match(err, /invalid options argument/i);
+          done();
+        });
+    });
+
+    it('rejects with error when options is string', function (done) {
+      queue.peek('string')
+        .catch(function (err) {
+          assert.match(err, /invalid options argument/i);
+          done();
+        });
     });
 
     it('accepts timeout and limit options', function (done) {
@@ -48,25 +82,64 @@ describe('BloodySimpleSQS API', function () {
 
   describe('#poll()', function () {
 
-    it('throws error when options is invalid', function () {
-      assert.throws(function () {queue.poll(null);}, /invalid options param/i);
-      assert.throws(function () {queue.poll(1);}, /invalid options param/i);
-      assert.throws(function () {queue.poll('str');}, /invalid options param/i);
+    it('rejects with error when options is null', function (done) {
+      queue.poll(null)
+        .catch(function (err) {
+          assert.match(err, /invalid options argument/i);
+          done();
+        });
+    });
+
+    it('rejects with error when options is number', function (done) {
+      queue.poll(123)
+        .catch(function (err) {
+          assert.match(err, /invalid options argument/i);
+          done();
+        });
+    });
+
+    it('rejects with error when options is string', function (done) {
+      queue.poll('string')
+        .catch(function (err) {
+          assert.match(err, /invalid options argument/i);
+          done();
+        });
     });
 
   });
 
   describe('#remove()', function () {
 
-    it('throws error when receiptHandle is undefined', function () {
-      assert.throws(function () {queue.remove();}, /invalid receiptHandle param/i);
+    it('rejects with error when receiptHandle is undefined', function (done) {
+      queue.remove()
+        .catch(function (err) {
+          assert.match(err, /invalid receiptHandle argument/i);
+          done();
+        });
     });
 
-    it('throws error when receiptHandle is invalid', function () {
-      assert.throws(function () {queue.remove(null);}, /invalid receiptHandle param/i);
-      assert.throws(function () {queue.remove(1);}, /invalid receiptHandle param/i);
-      assert.throws(function () {queue.remove({});}, /invalid receiptHandle param/i);
-      // assert.throws(function () {queue.remove(function () {});}, /receipt handle must be a string/i);
+    it('rejects with error when receiptHandle is null', function (done) {
+      queue.remove(null)
+        .catch(function (err) {
+          assert.match(err, /invalid receiptHandle argument/i);
+          done();
+        });
+    });
+
+    it('rejects with error when receiptHandle is number', function (done) {
+      queue.remove(123)
+        .catch(function (err) {
+          assert.match(err, /invalid receiptHandle argument/i);
+          done();
+        });
+    });
+
+    it('rejects with error when receiptHandle is object', function (done) {
+      queue.remove({})
+        .catch(function (err) {
+          assert.match(err, /invalid receiptHandle argument/i);
+          done();
+        });
     });
 
   });
