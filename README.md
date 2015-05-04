@@ -48,7 +48,7 @@ queue.add({a: 1, b: 2})
   });
 ```
 
-#### Retrieve and remove message from queue
+#### Pull message from queue
 
 ```javascript
 queue.poll({limit: 1, timeout: 20})
