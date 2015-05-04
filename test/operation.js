@@ -1,4 +1,4 @@
-require('dotenv').load(); // load environmental variables
+require('dotenv').load({silent: true}); // load environmental variables
 
 var chai = require('chai');
 var assert = chai.assert;
