@@ -352,7 +352,7 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
   var resolver;
 
   if (!_.isString(receiptHandle)) {
-    return Promise.reject(new Error('Invalid receiptHandle param; expected string, received ' + type(receiptHandle)))
+    return Promise.reject(new Error('Invalid receiptHandle argument; expected string, received ' + type(receiptHandle)))
       .nodeify(callback);
   }
 
