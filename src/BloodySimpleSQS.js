@@ -209,8 +209,8 @@ BloodySimpleSQS.prototype.add = function (payload, callback) {
 };
 
 /**
- * Appends all the elements of the specified array as messages to the queue.
- * @param {Array} arr an array og elements to append.
+ * Appends the elements of the specified array as messages to the queue.
+ * @param {Array} arr an array of elements to append.
  * @param {Function} [callback] an optional callback function with (err, response) arguments.
  * @return {Promise}
  */
@@ -224,7 +224,7 @@ BloodySimpleSQS.prototype.addAll = function (arr, callback) {
   }
 
   if (arr.length === 0) {
-    return Promise.reject(new Error('Invalid arr argument; array cannot be empty'))
+    return Promise.resolve([])
       .nodeify(callback);
   }
 
