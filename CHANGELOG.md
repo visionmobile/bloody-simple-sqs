@@ -1,3 +1,7 @@
+## 0.4.0 - 2015-05-04
+
+* Update the unit tests with new error messages and functionality
+
 ## 0.4.0-beta.3 - 2015-05-04
 
 * Gracefully resolve to empty array on #addAll() when arr is empty
