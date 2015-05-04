@@ -1,3 +1,7 @@
+## 0.4.0-beta.3 - 2015-05-04
+
+* Gracefully resolve to empty array on #addAll() when arr is empty
+
 ## 0.4.0-beta.2 - 2015-04-30
 
 * Use lodash#chunk to process high limit values
