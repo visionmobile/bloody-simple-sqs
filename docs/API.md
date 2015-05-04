@@ -79,7 +79,7 @@ A bluebird promise resolving to an object with the following properties.
 ```javascript
 queue.add({a: 1, b: 2})
   .then(function (data) {
-    console.log('Message sucessfully appended to queue with id ' + data.id);
+    console.log('Message successfully appended to queue with id ' + data.id);
   })
   .catch(function (err) {
     console.error(err);
@@ -88,11 +88,11 @@ queue.add({a: 1, b: 2})
 
 ### <a name="addAll" href="addAll">#</a>addAll(arr, [callback]) -> Promise
 
-Appends all the elements of the specified array as messages to the queue.
+Appends new messages, with the given payload, to the queue.
 
 ##### Parameters
 
-* `arr` _(Array)_ an array of elements to append to queue
+* `arr` _(Array)_ an array of payload entities to append to queue
 * `callback` _(Function)_ optional callback function with (err, data) arguments
 
 ##### Returns
@@ -107,7 +107,7 @@ queue.addAll([
   {a: 3, b: 4}
 ])
   .then(function () {
-    console.log('Messages sucessfully appended to queue');
+    console.log('Messages successfully appended to queue');
   })
   .catch(function (err) {
     console.error(err);
@@ -352,7 +352,7 @@ Bloody simple SQS exposes both promise and callback interfaces. Choose the codin
 ```javascript
 queue.add('hello')
   .then(function (data) {
-    console.log('Message sucessfully appended to queue with id ' + data.id);
+    console.log('Message successfully appended to queue with id ' + data.id);
   })
   .catch(function (err) {
     console.error(err);
@@ -367,6 +367,6 @@ queue.add('hello', function (err, data) {
     return;
   }
 
-  console.log('Message sucessfully appended to queue with id ' + data.id);
+  console.log('Message successfully appended to queue with id ' + data.id);
 });
 ```
