@@ -1,3 +1,7 @@
+## 0.4.1 - 2015-05-04
+
+* When limit > 1 return array on #peek or #poll, even if it's an empty one
+
 ## 0.4.0 - 2015-05-04
 
 * Update the unit tests with new error messages and functionality
