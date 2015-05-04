@@ -318,22 +318,23 @@ BloodySimpleSQS.prototype.peek = function (options, callback) {
       var messages;
 
       if (err) return reject(err);
-      if (!response.Messages) return resolve(null); // empty
 
-      messages = response.Messages.map(function (obj) {
-        return {
-          id: obj.MessageId,
-          body: JSON.parse(obj.Body),
-          md5: obj.MD5OfBody,
-          receiptHandle: obj.ReceiptHandle
-        };
-      });
+      messages = (response.Messages || [])
+        .map(function (obj) {
+          return {
+            id: obj.MessageId,
+            body: JSON.parse(obj.Body),
+            md5: obj.MD5OfBody,
+            receiptHandle: obj.ReceiptHandle
+          };
+        });
 
       if (options.limit === 1) {
-        resolve(messages[0]);
-      } else {
-        resolve(messages);
+        resolve(messages[0] || null); // return single message
+        return;
       }
+
+      resolve(messages);
     });
   };
 
@@ -383,11 +384,23 @@ BloodySimpleSQS.prototype.remove = function (receiptHandle, callback) {
 BloodySimpleSQS.prototype.poll = function (options, callback) {
   return this.peek(options)
     .bind(this)
-    .then(function (message) {
-      if (message) {
-        return this.remove(message.receiptHandle).return(message);
+    .then(function (messages) {
+      if (!_.isArray(messages)) {
+        return [messages];
       }
-      return null;
+      return messages;
+    })
+    .filter(function (message) {
+      return message !== null;
+    })
+    .map(function (message) {
+      return this.remove(message.receiptHandle).return(message);
+    })
+    .then(function (messages) {
+      if (options.limit === 1) {
+        return messages[0] || null;
+      }
+      return messages;
     })
     .nodeify(callback);
 };
