@@ -1,3 +1,7 @@
+## 1.0.1 - 2015-08-11
+
+* Update the README file
+
 ## 1.0.0 - 2015-08-11
 
 * Change #peek() and #poll() to always return an array
