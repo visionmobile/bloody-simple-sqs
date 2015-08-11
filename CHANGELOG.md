@@ -1,3 +1,9 @@
+## 1.0.0 - 2015-08-11
+
+* Change #peek() and #poll() to always return an array
+* Introduce #peekOne() and #pollOne() to pick and poll a single message object
+* Update the docs
+
 ## 0.5.0 - 2015-08-11
 
 * Rewrite in es2015 using babel + gulp
