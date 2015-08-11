@@ -1,3 +1,8 @@
+## 0.5.0 - 2015-08-11
+
+* Rewrite in es2015 using babel + gulp
+* Update npm dependencies: aws-sdk@2.1.44, mocha@2.2.5, dotenv@1.2.0, lodash@3.10.1, chai@3.2.0, bluebird@2.9.34
+
 ## 0.4.1 - 2015-05-04
 
 * When limit > 1 return array on #peek or #poll, even if it's an empty one
