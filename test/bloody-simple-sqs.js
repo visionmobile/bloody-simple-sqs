@@ -67,7 +67,7 @@ describe('BloodySimpleSQS', function () {
           assert.isString(message.md5);
         })
 
-        .delay(1000)
+        .delay(5000)
 
         .then(done, done);
     });
@@ -226,7 +226,7 @@ describe('BloodySimpleSQS', function () {
 
     it('removes message from queue', function (done) {
       queue.remove(receiptHandle)
-        .delay(1000)
+        .delay(5000)
         .then(done, done);
     });
 
