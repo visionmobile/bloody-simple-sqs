@@ -130,7 +130,12 @@ describe('BloodySimpleSQS', function () {
     it('returns array of messages', function (done) {
       queue.peek()
 
-        .then(function (message) {
+        .then(function (messages) {
+          assert.isArray(messages);
+          assert.lengthOf(messages, 1);
+
+          let message = messages[0];
+
           assert.property(message, 'id');
           assert.isString(message.id);
           assert.property(message, 'body');
