@@ -151,10 +151,11 @@ class BloodySimpleSQS extends EventEmitter {
   /**
    * Appends a new message, with the given payload, at the end of the queue.
    * @param {(Boolean|String|Number|Object|null)} payload the message payload.
+   * @param {Integer} delaySeconds number of seconds to delay delivery of the message
    * @param {Function} [callback] an optional callback function with (err, response) arguments.
    * @return {Promise}
    */
-  add(payload, callback) {
+  add(payload, delaySeconds, callback) {
     // validate arguments
     if (
       !_.isNumber(payload) &&
@@ -167,11 +168,18 @@ class BloodySimpleSQS extends EventEmitter {
         .nodeify(callback);
     }
 
+    if( !_.isNumber(delaySeconds)
+    ) {
+      return Promise.reject(new CustomError(`Invalid delaySeconds argument; expect number, received ${type(payload)}`, 'InvalidArgument'))
+        .nodeify(callback);
+    }
+    
     // define promise resolver
     let resolver = (resolve, reject) => {
       this.sqs.sendMessage({
         QueueUrl: this.queueUrl,
-        MessageBody: JSON.stringify(payload)
+        MessageBody: JSON.stringify(payload),
+        DelaySeconds: delaySeconds
       }, (err, response) => {
         if (err) return reject(err);
 
