@@ -234,11 +234,11 @@ class BloodySimpleSQS extends EventEmitter {
   }
 
   /**
-   * Retrieves, but does not remove, the head of the queue.
+   * Retrieves, but does not remove, the specified number of messages from the head of the queue.
    * @param {Object} [options] optional request options.
    * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
    * @param {number} [options.limit=1] maximum number of messages to return.
-   * @param {Function} [callback] an optional callback function with (err, message) arguments.
+   * @param {Function} [callback] an optional callback function with (err, messages) arguments.
    * @return {Promise}
    */
   peek(options, callback) {
@@ -300,16 +300,47 @@ class BloodySimpleSQS extends EventEmitter {
             };
           });
 
-        if (options.limit === 1) {
-          resolve(messages[0] || null); // return single message
-          return;
-        }
-
         resolve(messages);
       });
     };
 
     return this._contructPromise(resolver).nodeify(callback);
+  }
+
+  /**
+   * Retrieves, but does not remove, the first message from the head of the queue.
+   * @param {Object} [options] optional request options.
+   * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
+   * @param {Function} [callback] an optional callback function with (err, messages) arguments.
+   * @return {Promise}
+   */
+  peekOne(options, callback) {
+    // validate arguments
+    if (_.isFunction(options)) {
+      callback = options;
+      options = {};
+    } else if (_.isUndefined(options)) {
+      options = {};
+    } else if (!_.isPlainObject(options)) {
+      return Promise.reject(new CustomError(`Invalid options argument; expected object, received ${type(options)}`, 'InvalidArgument'))
+        .nodeify(callback);
+    }
+
+    // set default options
+    options = _.defaults(options, {
+      timeout: 0
+    });
+
+    // set hard limit to 1
+    options.limit = 1;
+
+    // peek and unpack returned messages
+    return this.peek(options)
+      .then((messages) => {
+        if (messages.length === 0) return null;
+        return messages[0];
+      })
+      .nodeify(callback);
   }
 
   /**
@@ -340,16 +371,37 @@ class BloodySimpleSQS extends EventEmitter {
   }
 
   /**
-   * Retrieves and removes the head of the queue, or returns null if queue is empty.
+   * Retrieves and removes the specified number of messages from the head of the queue.
    * @param {Object} [options] optional request options.
-   * @param {Function} [callback] an optional callback function with (err, message) arguments.
-   * @see {@link peek} for further information on the "options" param.
+   * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
+   * @param {number} [options.limit=1] maximum number of messages to return.
+   * @param {Function} [callback] an optional callback function with (err, messages) arguments.
    * @return {Promise}
    */
   poll(options, callback) {
     return this.peek(options)
 
       .map((message) => {
+        return this.remove(message.receiptHandle)
+          .return(message);
+      })
+
+      .nodeify(callback);
+  }
+
+  /**
+   * Retrieves and removes the first message from the head of the queue.
+   * @param {Object} [options] optional request options.
+   * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
+   * @param {Function} [callback] an optional callback function with (err, messages) arguments.
+   * @return {Promise}
+   */
+  pollOne(options, callback) {
+    return this.peekOne(options)
+
+      .then((message) => {
+        if (!message) return null;
+
         return this.remove(message.receiptHandle)
           .return(message);
       })
@@ -385,11 +437,14 @@ class BloodySimpleSQS extends EventEmitter {
     });
 
     rs._read = () => {
-      this.poll()
+      this.pollOne()
 
         .then((message) => {
-          if (message.length === 0) return rs.push(null); // end
-          rs.push(message[0].body, 'utf8');
+          if (!message) {
+            return rs.push(null); // exit
+          }
+
+          rs.push(message.body, 'utf8');
         })
 
         .catch((err) => {
