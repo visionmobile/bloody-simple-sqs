@@ -44,6 +44,6 @@
     "gulp-load-plugins": "^1.0.0-rc.1",
     "gulp-plumber": "^1.0.1",
     "mkdirp": "^0.5.1",
-    "mocha": "^2.2.4"
+    "mocha": "^2.2.5"
   }
 }
