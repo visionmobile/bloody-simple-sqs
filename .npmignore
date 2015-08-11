@@ -1,9 +1,13 @@
-.travis.yml
 .env
+.npmrc
+
 .jshintrc
 .gitignore
+.travis.yml
+
 .idea
-.npmrc
+
+src/
 assets/
 test/
 docs/
