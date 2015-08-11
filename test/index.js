@@ -1,3 +1,6 @@
+require('dotenv').load({silent: true});
+require('babel/register');
+
 var path = require('path');
 var Mocha = require('mocha');
 
@@ -8,8 +11,7 @@ var mocha = new Mocha({
 });
 
 // load the test files
-mocha.addFile(path.resolve(__dirname, './api'));
-mocha.addFile(path.resolve(__dirname, './operation'));
+mocha.addFile(path.resolve(__dirname, './bloody-simple-sqs'));
 
 // run the tests
 mocha.run(function (failures) {
