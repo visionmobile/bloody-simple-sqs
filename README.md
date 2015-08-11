@@ -2,11 +2,11 @@
 
 A bloody simple Amazon SQS client for Node.js, based on the official AWS SDK.
 
-[ ![Build Status for visionmobile/bloody-simple-sqs](https://codeship.com/projects/e66d6350-aebb-0132-cc2e-72504bd694d9/status?branch=master)](https://codeship.com/projects/68954)
+[ ![Build Status for visionmobile/bloody-simple-sqs](https://codeship.com/projects/ce3c9d80-bb71-0132-8afa-3ee0b98d9f7e/status?branch=master)](https://codeship.com/projects/72166)
 
 #### Features
 
-* Simple and sane interface to Amazon SQS;
+* Simple interface to Amazon SQS;
 * Exposes promise and callback API;
 * Battle-tested under heavy load;
 * Distributed under the MIT license.
@@ -51,13 +51,14 @@ queue.add({a: 1, b: 2})
 #### Pull message from queue
 
 ```javascript
-queue.poll({limit: 1, timeout: 20})
+queue.pollOne()
   .then(function (message) {
-    if (message) {
-      console.log(message);
-    } else {
+    if (!message) {
       console.log('The queue has no messages');
+      return;
     }
+
+    console.log(message);
   })
   .catch(function (err) {
     console.error(err);
@@ -68,9 +69,11 @@ queue.poll({limit: 1, timeout: 20})
 
 For further information on Bloody Simple SQS methods please refer to the [API Docs](https://github.com/jmike/bloody-simple-sqs/blob/master/docs/API.md).
 
-## Philosophy
+## About this project
 
-Amazon Simple Queue Service is an excellent queue-as-a-service solution, simpler than the notorious RabbitMQ, yet powerfull, reliable and inexpensive. AWS provides a Node.js SDK, but it's complex and repetitive. Bloody-simple-sqs aims to hide the complexity under a simple well-defined API, so that the developers focus on using the SQS, rather than understanding the internal mechanisms of AWS-SDK.
+Amazon Simple Queue Service is an excellent queue-as-a-service solution - simpler than the notorious RabbitMQ, yet powerfull, reliable and inexpensive.
+
+AWS provides a Node.js SDK, but it's complex and repetitive. Bloody-simple-sqs aims to hide the complexity under a simple well-defined API, so that the developers focus on using the SQS, rather than understanding the internal mechanisms of AWS-SDK.
 
 ## License
 
