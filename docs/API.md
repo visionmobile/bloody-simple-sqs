@@ -12,7 +12,9 @@
   * [getUrl([callback])](#getUrl)
   * [isEmpty([callback])](#isEmpty)
   * [peek([options], [callback])](#peek)
+  * [peekOne([options], [callback])](#peekOne)
   * [poll([options], [callback])](#poll)
+  * [pollOne([options], [callback])](#pollOne)
   * [remove(receiptHandle, [callback])](#remove)
   * [size([callback])](#size)
 * [Notes](#notes)
@@ -217,18 +219,18 @@ queue.isEmpty()
 
 ### <a name="peek" href="peek">#</a>peek([options], [callback]) -> Promise
 
-Retrieves, but does not remove, the head of the queue.
+Retrieves, but does not remove, the specified number of messages from the head of the queue.
 
 ##### Parameters
 
 * `options` _(Object)_ optional peek options
   * `timeout` _(Number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
   * `limit` _(Number)_ maximum number of messages to return; defaults to 1
-* `callback` _(Function)_ optional callback function with (err, data) arguments
+* `callback` _(Function)_ optional callback function with (err, messages) arguments
 
 ##### Returns
 
-A bluebird promise resolving to a message object with the following properties, or null if the queue is empty.
+A bluebird promise resolving to an array of messages with the following properties.
 
 * `id` _(String)_ the id of the message in Amazon SQS
 * `body`_(Boolean, String, Number, Object, null)_ the message payload
@@ -239,32 +241,27 @@ A bluebird promise resolving to a message object with the following properties, 
 
 ```javascript
 queue.peek({limit: 1, timeout: 20})
-  .then(function (message) {
-    if (message) {
-      console.log(JSON.stringify(message));
-    } else {
-      console.log('The queue is empty');
-    }
+  .each(function (message) {
+    console.log(JSON.stringify(message));
   })
   .catch(function (err) {
     console.error(err);
   });
 ```
 
-### <a name="poll" href="poll">#</a>poll([options], [callback]) -> Promise
+### <a name="peekOne" href="peekOne">#</a>peekOne([options], [callback]) -> Promise
 
-Retrieves and removes the head of the queue, or null if queue is empty.
+Retrieves, but does not remove, the first message from the head of the queue.
 
 ##### Parameters
 
 * `options` _(Object)_ optional peek options
   * `timeout` _(Number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
-  * `limit` _(Number)_ maximum number of messages to return; defaults to 1
-* `callback` _(Function)_ optional callback function with (err, data) arguments
+* `callback` _(Function)_ optional callback function with (err, message) arguments
 
 ##### Returns
 
-A bluebird promise resolving to a message object with the following properties, or null if the queue is empty.
+A bluebird promise resolving to a message object with the following properties.
 
 * `id` _(String)_ the id of the message in Amazon SQS
 * `body`_(Boolean, String, Number, Object, null)_ the message payload
@@ -274,13 +271,82 @@ A bluebird promise resolving to a message object with the following properties, 
 ##### Example
 
 ```javascript
-queue.poll({limit: 1, timeout: 20})
+queue.peekOne({timeout: 20})
   .then(function (message) {
-    if (message) {
-      console.log(JSON.stringify(message));
-    } else {
-      console.log('The queue is empty');
+    if (message === null) {
+      console.log('Queue is empty');
+      return;
     }
+
+    console.log(JSON.stringify(message));
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
+
+### <a name="poll" href="poll">#</a>poll([options], [callback]) -> Promise
+
+Retrieves and removes the specified number of messages from the head of the queue.
+
+##### Parameters
+
+* `options` _(Object)_ optional peek options
+  * `timeout` _(Number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
+  * `limit` _(Number)_ maximum number of messages to return; defaults to 1
+* `callback` _(Function)_ optional callback function with (err, messages) arguments
+
+##### Returns
+
+A bluebird promise resolving to an array of messages with the following properties.
+
+* `id` _(String)_ the id of the message in Amazon SQS
+* `body`_(Boolean, String, Number, Object, null)_ the message payload
+* `md5`_(String)_ an MD5 digest of the payload; this can be used to verify that Amazon SQS received the message correctly
+* `receiptHandle`_(String)_ the receipt handle associated with the current message - used to remove the message from queue
+
+##### Example
+
+```javascript
+queue.poll({limit: 5, timeout: 20})
+  .each(function (message) {
+    console.log(JSON.stringify(message));
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
+```
+
+### <a name="pollOne" href="pollOne">#</a>pollOne([options], [callback]) -> Promise
+
+Retrieves and removes the specified number of messages from the head of the queue.
+
+##### Parameters
+
+* `options` _(Object)_ optional peek options
+  * `timeout` _(Number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
+* `callback` _(Function)_ optional callback function with (err, message) arguments
+
+##### Returns
+
+A bluebird promise resolving to a message object with the following properties.
+
+* `id` _(String)_ the id of the message in Amazon SQS
+* `body`_(Boolean, String, Number, Object, null)_ the message payload
+* `md5`_(String)_ an MD5 digest of the payload; this can be used to verify that Amazon SQS received the message correctly
+* `receiptHandle`_(String)_ the receipt handle associated with the current message - used to remove the message from queue
+
+##### Example
+
+```javascript
+queue.pollOne({timeout: 20})
+  .then(function (message) {
+    if (message === null) {
+      console.log('Queue is empty');
+      return;
+    }
+
+    console.log(JSON.stringify(message));
   })
   .catch(function (err) {
     console.error(err);
@@ -303,7 +369,7 @@ A bluebird promise resolving to no arguments.
 ##### Example
 
 ```javascript
-queue.peek()
+queue.peekOne()
   .then(function (message) {
     if (message) {
       console.log('Removing message from queue');
