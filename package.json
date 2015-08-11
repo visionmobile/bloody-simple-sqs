@@ -6,8 +6,10 @@
     "type": "git",
     "url": "git://github.com/jmike/bloody-simple-sqs.git"
   },
-  "main": "src/BloodySimpleSQS.js",
+  "main": "dist/BloodySimpleSQS.js",
   "scripts": {
+    "build": "gulp build",
+    "prepublish": "npm run build",
     "test": "node test/index.js"
   },
   "keywords": [
@@ -19,7 +21,11 @@
     "aws",
     "worker"
   ],
-  "author": "Dimitrios C. Michalakos <dimitris@jmike.gr>",
+  "author": {
+    "name": "Dimitrios C. Michalakos",
+    "email": "dimitris@jmike.gr",
+    "url": "https://github.com/jmike"
+  },
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.1.26",
@@ -31,6 +37,13 @@
   "devDependencies": {
     "chai": "^2.3.0",
     "dotenv": "^1.1.0",
-    "mocha": "^2.2.4"
+    "mocha": "^2.2.4",
+    "babel": "^5.8.21",
+    "del": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.0",
+    "gulp-load-plugins": "^1.0.0-rc.1",
+    "gulp-plumber": "^1.0.1",
+    "mkdirp": "^0.5.1"
   }
 }
