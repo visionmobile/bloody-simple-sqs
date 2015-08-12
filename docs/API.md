@@ -66,6 +66,8 @@ Appends a new message, with the given payload, at the end of the queue.
 ##### Parameters
 
 * `payload` _(Boolean, String, Number, Object, null)_ the message payload
+* `options` _(Object)_ optional request options
+  * `delaySeconds` _(Integer)_ the number of seconds (0 to 900 - 15 minutes) to delay the delivery of the message
 * `callback` _(Function)_ optional callback function with (err, data) arguments
 
 ##### Returns
@@ -95,6 +97,8 @@ Appends new messages, with the given payload, to the queue.
 ##### Parameters
 
 * `arr` _(Array)_ an array of payload entities to append to queue
+* `options` _(Object)_ optional request options
+  * `delaySeconds` _(Integer)_ the number of seconds (0 to 900 - 15 minutes) to delay the delivery of the message
 * `callback` _(Function)_ optional callback function with (err, data) arguments
 
 ##### Returns
