@@ -1,3 +1,7 @@
+## 1.1.0 - 2015-08-12
+
+* Introduce `options` argument in #add() and #addAll() methods; accept `options.delaySeconds` (@chainlink)
+
 ## 1.0.1 - 2015-08-11
 
 * Update the README file
