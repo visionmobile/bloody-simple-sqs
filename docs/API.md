@@ -228,8 +228,8 @@ Retrieves, but does not remove, the specified number of messages from the head o
 ##### Parameters
 
 * `options` _(Object)_ optional peek options
-  * `timeout` _(Number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
-  * `limit` _(Number)_ maximum number of messages to return; defaults to 1
+  * `timeout` _(Integer)_ number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20; defaults to 0
+  * `limit` _(Integer)_ maximum number of messages to return; defaults to 1
 * `callback` _(Function)_ optional callback function with (err, messages) arguments
 
 ##### Returns
@@ -260,7 +260,7 @@ Retrieves, but does not remove, the first message from the head of the queue.
 ##### Parameters
 
 * `options` _(Object)_ optional peek options
-  * `timeout` _(Number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
+  * `timeout` _(Integer)_ number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20; defaults to 0
 * `callback` _(Function)_ optional callback function with (err, message) arguments
 
 ##### Returns
@@ -296,8 +296,8 @@ Retrieves and removes the specified number of messages from the head of the queu
 ##### Parameters
 
 * `options` _(Object)_ optional peek options
-  * `timeout` _(Number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
-  * `limit` _(Number)_ maximum number of messages to return; defaults to 1
+  * `timeout` _(Integer)_ number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20; defaults to 0
+  * `limit` _(Integer)_ maximum number of messages to return; defaults to 1
 * `callback` _(Function)_ optional callback function with (err, messages) arguments
 
 ##### Returns
@@ -328,7 +328,7 @@ Retrieves and removes the specified number of messages from the head of the queu
 ##### Parameters
 
 * `options` _(Object)_ optional peek options
-  * `timeout` _(Number)_ number of seconds to wait until a message arrives in the queue; must be between 0 and 20; defaults to 0
+  * `timeout` _(Integer)_ number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20; defaults to 0
 * `callback` _(Function)_ optional callback function with (err, message) arguments
 
 ##### Returns

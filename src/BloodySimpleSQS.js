@@ -207,7 +207,7 @@ class BloodySimpleSQS extends EventEmitter {
   /**
    * Appends the elements of the specified array as messages to the queue.
    * @param {Array} arr an array of elements to append.
-   * @param {Object} [options] request options
+   * @param {Object} [options] optional request options
    * @param {Integer} [options.delaySeconds] the number of seconds (0 to 900 - 15 minutes) to delay the delivery of the message
    * @param {Function} [callback] an optional callback function with (err, response) arguments.
    * @return {Promise}
@@ -275,8 +275,8 @@ class BloodySimpleSQS extends EventEmitter {
   /**
    * Retrieves, but does not remove, the specified number of messages from the head of the queue.
    * @param {Object} [options] optional request options.
-   * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
-   * @param {number} [options.limit=1] maximum number of messages to return.
+   * @param {Integer} [options.timeout=0] number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20.
+   * @param {Integer} [options.limit=1] maximum number of messages to return.
    * @param {Function} [callback] an optional callback function with (err, messages) arguments.
    * @return {Promise}
    */
@@ -349,7 +349,7 @@ class BloodySimpleSQS extends EventEmitter {
   /**
    * Retrieves, but does not remove, the first message from the head of the queue.
    * @param {Object} [options] optional request options.
-   * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
+   * @param {Integer} [options.timeout=0] number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20.
    * @param {Function} [callback] an optional callback function with (err, messages) arguments.
    * @return {Promise}
    */
@@ -412,8 +412,8 @@ class BloodySimpleSQS extends EventEmitter {
   /**
    * Retrieves and removes the specified number of messages from the head of the queue.
    * @param {Object} [options] optional request options.
-   * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
-   * @param {number} [options.limit=1] maximum number of messages to return.
+   * @param {Integer} [options.timeout=0] number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20.
+   * @param {Integer} [options.limit=1] maximum number of messages to return.
    * @param {Function} [callback] an optional callback function with (err, messages) arguments.
    * @return {Promise}
    */
@@ -431,7 +431,7 @@ class BloodySimpleSQS extends EventEmitter {
   /**
    * Retrieves and removes the first message from the head of the queue.
    * @param {Object} [options] optional request options.
-   * @param {number} [options.timeout=0] number of seconds to wait until a message arrives in the queue; must be between 0 and 20.
+   * @param {Integer} [options.timeout=0] number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20.
    * @param {Function} [callback] an optional callback function with (err, messages) arguments.
    * @return {Promise}
    */
