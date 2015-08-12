@@ -150,12 +150,13 @@ class BloodySimpleSQS extends EventEmitter {
 
   /**
    * Appends a new message, with the given payload, at the end of the queue.
-   * @param {(Boolean|String|Number|Object|null)} payload the message payload.
-   * @param {Integer} delaySeconds number of seconds to delay delivery of the message
-   * @param {Function} [callback] an optional callback function with (err, response) arguments.
+   * @param {(Boolean|String|Number|Object|null)} payload the message payload
+   * @param {Object} [options] request options
+   * @param {Integer} [options.delaySeconds] the number of seconds (0 to 900 - 15 minutes) to delay the delivery of the message
+   * @param {Function} [callback] an optional callback function with (err, response) arguments
    * @return {Promise}
    */
-  add(payload, delaySeconds, callback) {
+  add(payload, options, callback) {
     // validate arguments
     if (
       !_.isNumber(payload) &&
@@ -168,19 +169,28 @@ class BloodySimpleSQS extends EventEmitter {
         .nodeify(callback);
     }
 
-    if( !_.isNumber(delaySeconds)
-    ) {
-      return Promise.reject(new CustomError(`Invalid delaySeconds argument; expect number, received ${type(payload)}`, 'InvalidArgument'))
+    if (_.isFunction(options)) {
+      callback = options;
+      options = {};
+    } else if (_.isUndefined(options)) {
+      options = {};
+    } else if (!_.isPlainObject(options)) {
+      return Promise.reject(new CustomError(`Invalid options argument; expected object, received ${type(options)}`, 'InvalidArgument'))
         .nodeify(callback);
     }
-    
+
     // define promise resolver
     let resolver = (resolve, reject) => {
-      this.sqs.sendMessage({
+      let params = {
         QueueUrl: this.queueUrl,
-        MessageBody: JSON.stringify(payload),
-        DelaySeconds: delaySeconds
-      }, (err, response) => {
+        MessageBody: JSON.stringify(payload)
+      };
+
+      if (!_.isUndefined(options.delaySeconds)) {
+        params.DelaySeconds = options.delaySeconds;
+      }
+
+      this.sqs.sendMessage(params, (err, response) => {
         if (err) return reject(err);
 
         resolve({
