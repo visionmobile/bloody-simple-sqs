@@ -207,13 +207,25 @@ class BloodySimpleSQS extends EventEmitter {
   /**
    * Appends the elements of the specified array as messages to the queue.
    * @param {Array} arr an array of elements to append.
+   * @param {Object} [options] request options
+   * @param {Integer} [options.delaySeconds] the number of seconds (0 to 900 - 15 minutes) to delay the delivery of the message
    * @param {Function} [callback] an optional callback function with (err, response) arguments.
    * @return {Promise}
    */
-  addAll(arr, callback) {
+  addAll(arr, options, callback) {
     // validate arguments
     if (!_.isArray(arr)) {
       return Promise.reject(new CustomError(`Invalid arr argument; expected array, received ${type(arr)}`, 'InvalidArgument'))
+        .nodeify(callback);
+    }
+
+    if (_.isFunction(options)) {
+      callback = options;
+      options = {};
+    } else if (_.isUndefined(options)) {
+      options = {};
+    } else if (!_.isPlainObject(options)) {
+      return Promise.reject(new CustomError(`Invalid options argument; expected object, received ${type(options)}`, 'InvalidArgument'))
         .nodeify(callback);
     }
 
@@ -234,7 +246,7 @@ class BloodySimpleSQS extends EventEmitter {
 
     // define promise resolver
     let resolver = (resolve, reject) => {
-      this.sqs.sendMessageBatch({
+      let params = {
         QueueUrl: this.queueUrl,
         Entries: arr.map((e) => {
           return {
@@ -242,7 +254,16 @@ class BloodySimpleSQS extends EventEmitter {
             MessageBody: JSON.stringify(e)
           };
         })
-      }, (err) => {
+      };
+
+      if (!_.isUndefined(options.delaySeconds)) {
+        params.Entries.map((e) => {
+          e.DelaySeconds = options.delaySeconds;
+          return e;
+        });
+      }
+
+      this.sqs.sendMessageBatch(params, (err) => {
         if (err) return reject(err);
         resolve();
       });
