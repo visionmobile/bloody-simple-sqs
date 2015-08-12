@@ -56,7 +56,7 @@ describe('BloodySimpleSQS', function () {
     });
 
     it('appends message to queue', function (done) {
-      queue.add({v: 1})
+      queue.add({v: 1}, 0)
 
         .then(function (message) {
           assert.property(message, 'id');
