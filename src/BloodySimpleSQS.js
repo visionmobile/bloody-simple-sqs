@@ -5,7 +5,7 @@ import Promise from 'bluebird';
 import _ from 'lodash';
 import uuid from 'node-uuid';
 import type from 'type-of';
-import CustomError from './helpers/CustomError';
+import CustomError from 'customerror';
 
 class BloodySimpleSQS extends EventEmitter {
 
