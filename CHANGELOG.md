@@ -1,3 +1,10 @@
+## 1.1.1 - 2015-11-06
+
+* Update npm dependencies: aws-sdk@2.2.15, bluebird@3.0.5, babel@6.0.15, babel-core@6.1.2, gulp-babel@6.1.0, mocha@2.3.3, chai@3.4.0
+* Replace local CustomError with customerror@1.0.1
+* Replace jshint with eslint
+* Deploy new build system with gulp + babel
+
 ## 1.1.0 - 2015-08-12
 
 * Introduce `options` argument in #add() and #addAll() methods; accept `options.delaySeconds` (@chainlink)
