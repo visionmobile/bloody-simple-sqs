@@ -1,5 +1,5 @@
 require('dotenv').load({silent: true});
-require('babel/register');
+require('babel-core/register');
 
 var path = require('path');
 var Mocha = require('mocha');
