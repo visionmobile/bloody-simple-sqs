@@ -1,5 +1,5 @@
-import {assert} from 'chai';
-import SQS from '../src/BloodySimpleSQS';
+const assert = require('chai').assert;
+const SQS = require('../src/BloodySimpleSQS');
 
 describe('BloodySimpleSQS', function () {
 

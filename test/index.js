@@ -1,11 +1,11 @@
 require('dotenv').load({silent: true});
 require('babel-core/register');
 
-var path = require('path');
-var Mocha = require('mocha');
+const path = require('path');
+const Mocha = require('mocha');
 
 // init mocha
-var mocha = new Mocha({
+const mocha = new Mocha({
   reporter: 'spec',
   timeout: 60000 // 60 secs
 });

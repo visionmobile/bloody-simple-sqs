@@ -1,11 +1,11 @@
-import {EventEmitter} from 'events';
-import {Readable} from 'stream';
-import AWS from 'aws-sdk';
-import Promise from 'bluebird';
-import _ from 'lodash';
-import uuid from 'node-uuid';
-import type from 'type-of';
-import CustomError from 'customerror';
+const EventEmitter = require('events').EventEmitter;
+const Readable = require('stream').Readable;
+const AWS = require('aws-sdk');
+const Promise = require('bluebird');
+const _ = require('lodash');
+const uuid = require('node-uuid');
+const type = require('type-of');
+const CustomError = require('customerror');
 
 class BloodySimpleSQS extends EventEmitter {
 
@@ -495,4 +495,4 @@ class BloodySimpleSQS extends EventEmitter {
   }
 }
 
-export default BloodySimpleSQS;
+module.exports = BloodySimpleSQS;
