@@ -1,3 +1,8 @@
+## 1.1.2 - 2015-11-12
+
+* Use commonjs to import/export modules to avoid babel "default" decorator - see https://github.com/babel/babel/issues/2724 for further info.
+* Replace gulpfile.js with gulpfile.babel.js
+
 ## 1.1.1 - 2015-11-06
 
 * Update npm dependencies: aws-sdk@2.2.15, bluebird@3.0.5, babel@6.0.15, babel-core@6.1.2, gulp-babel@6.1.0, mocha@2.3.3, chai@3.4.0
