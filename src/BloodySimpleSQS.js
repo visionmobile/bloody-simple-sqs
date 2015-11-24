@@ -1,5 +1,6 @@
 const EventEmitter = require('events').EventEmitter;
 const Readable = require('stream').Readable;
+
 const AWS = require('aws-sdk');
 const Promise = require('bluebird');
 const _ = require('lodash');
