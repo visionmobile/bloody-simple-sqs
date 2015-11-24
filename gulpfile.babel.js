@@ -1,9 +1,9 @@
-import path from 'path';
-import gulp from 'gulp';
-import babel from 'gulp-babel';
-import rimraf from 'gulp-rimraf';
-import plumber from 'gulp-plumber';
-import manifest from './package.json';
+const path = require('path');
+const gulp = require('gulp');
+const babel = require('gulp-babel');
+const rimraf = require('gulp-rimraf');
+const plumber = require('gulp-plumber');
+const manifest = require('./package.json');
 
 const src = path.resolve(__dirname, 'src');
 const dest = path.resolve(__dirname, path.dirname(manifest.main));
