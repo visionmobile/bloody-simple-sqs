@@ -445,6 +445,29 @@ class BloodySimpleSQS extends EventEmitter {
   }
 
   /**
+   * Removes the designated messages from queue.
+   * @param {Array<String, Object>} messages an array of messages or receipt handles.
+   * @param {Function} [callback] an optional callback function with (err) arguments.
+   * @return {Promise}
+   */
+  removeAll(messages, callback) {
+    // validate arguments
+    if (!_.isArray(messages)) {
+      return Promise.reject(new CustomError(`Invalid messages argument; expected array, received ${type(messages)}`, 'InvalidArgument'))
+        .nodeify(callback);
+    }
+
+    return Promise.map(messages, (e, i) => {
+      return this.remove(e)
+        .catch((err) => {
+          err.message = `Invalid element at position ${i} in the messages array`;
+          throw err;
+        });
+    })
+      .nodeify(callback);
+  }
+
+  /**
    * Retrieves and removes the specified number of messages from the head of the queue.
    * @param {Object} [options] optional request options.
    * @param {Integer} [options.timeout=0] number of seconds to wait until a message becomes available for retrieval; must be between 0 and 20.
