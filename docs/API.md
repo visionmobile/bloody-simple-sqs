@@ -363,7 +363,7 @@ Remove message with the designated receipt handle from queue.
 
 ##### Parameters
 
-* `receiptHandle` _(Object)_ the message's receipt handle, as provided by [#peek()](#peek)
+* `receiptHandle` _(String)_ the message's receipt handle, as provided by [#peek()](#peek)
 * `callback` _(Function)_ optional callback function with (err) arguments
 
 ##### Returns
