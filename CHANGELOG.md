@@ -1,3 +1,8 @@
+## 1.2.0 - 2015-11-24
+
+* Introduce #removeAll() method which accepts an array of messages or receipt handles.
+* Extend #remove() to accept a message object as well as a receiptHandle.
+
 ## 1.1.2 - 2015-11-12
 
 * Use commonjs to import/export modules to avoid babel "default" decorator - see https://github.com/babel/babel/issues/2724 for further info.
