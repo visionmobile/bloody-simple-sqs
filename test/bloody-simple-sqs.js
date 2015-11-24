@@ -190,7 +190,7 @@ describe('BloodySimpleSQS', function () {
         });
     });
 
-    it('rejects with error when receiptHandle is null', function (done) {
+    it('rejects with error when message is null', function (done) {
       queue.remove(null)
 
         .catch(function (err) {
@@ -200,7 +200,7 @@ describe('BloodySimpleSQS', function () {
         });
     });
 
-    it('rejects with error when receiptHandle is number', function (done) {
+    it('rejects with error when message is number', function (done) {
       queue.remove(123)
 
         .catch(function (err) {
@@ -210,7 +210,7 @@ describe('BloodySimpleSQS', function () {
         });
     });
 
-    it('rejects with error when receiptHandle is object', function (done) {
+    it('rejects with error when message is empty object', function (done) {
       queue.remove({})
 
         .catch(function (err) {
