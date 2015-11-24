@@ -47,7 +47,7 @@ describe('BloodySimpleSQS', function () {
       queue.add()
 
         .catch(function (err) {
-          assert.match(err, /invalid payload argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
           done();
         });
     });
@@ -86,7 +86,7 @@ describe('BloodySimpleSQS', function () {
       queue.addAll()
 
         .catch(function (err) {
-          assert.match(err, /invalid arr argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
           done();
         });
     });
@@ -97,7 +97,8 @@ describe('BloodySimpleSQS', function () {
       queue.peek(null)
 
         .catch(function (err) {
-          assert.match(err, /invalid options argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
+          assert.match(err.message, /invalid options argument/i);
           done();
         });
     });
@@ -106,7 +107,8 @@ describe('BloodySimpleSQS', function () {
       queue.peek(123)
 
         .catch(function (err) {
-          assert.match(err, /invalid options argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
+          assert.match(err.message, /invalid options argument/i);
           done();
         });
     });
@@ -115,7 +117,8 @@ describe('BloodySimpleSQS', function () {
       queue.peek('string')
 
         .catch(function (err) {
-          assert.match(err, /invalid options argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
+          assert.match(err.message, /invalid options argument/i);
           done();
         });
     });
@@ -177,11 +180,12 @@ describe('BloodySimpleSQS', function () {
   });
 
   describe('#remove()', function () {
-    it('rejects with error when receiptHandle is undefined', function (done) {
+    it('rejects with error when message is undefined', function (done) {
       queue.remove()
 
         .catch(function (err) {
-          assert.match(err, /invalid receiptHandle argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
+          assert.match(err.message, /invalid message argument/i);
           done();
         });
     });
@@ -190,7 +194,8 @@ describe('BloodySimpleSQS', function () {
       queue.remove(null)
 
         .catch(function (err) {
-          assert.match(err, /invalid receiptHandle argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
+          assert.match(err, /invalid message argument/i);
           done();
         });
     });
@@ -199,7 +204,8 @@ describe('BloodySimpleSQS', function () {
       queue.remove(123)
 
         .catch(function (err) {
-          assert.match(err, /invalid receiptHandle argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
+          assert.match(err, /invalid message argument/i);
           done();
         });
     });
@@ -208,14 +214,15 @@ describe('BloodySimpleSQS', function () {
       queue.remove({})
 
         .catch(function (err) {
-          assert.match(err, /invalid receiptHandle argument/i);
+          assert.strictEqual(err.name, 'InvalidArgument');
+          assert.match(err, /invalid message argument/i);
           done();
         });
     });
 
     it('removes message from queue', function (done) {
       queue.remove(receiptHandle)
-        .delay(5000)
+        .delay(30 * 1000)
         .then(done, done);
     });
 
