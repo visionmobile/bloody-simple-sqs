@@ -88,6 +88,21 @@ class BloodySimpleSQS extends EventEmitter {
   }
 
   /**
+   * Returns a promise that will be resolved when the queue emits ready.
+   * @return {Promise}
+   * @private
+   */
+  _ready() {
+    return new Promise((resolve) => {
+      if (this.isReady) {
+        resolve();
+      } else {
+        this.once('ready', () => resolve());
+      }
+    });
+  }
+
+  /**
    * Retrieves the URL of the queue from AWS.
    * @param {Function} [callback] an optional callback function with (err, url) arguments.
    * @return {Promise}
@@ -98,7 +113,7 @@ class BloodySimpleSQS extends EventEmitter {
       return Promise.resolve(this.queueUrl).nodeify(callback);
     }
 
-    let resolver = (resolve, reject) => {
+    const resolver = (resolve, reject) => {
       this.sqs.getQueueUrl({
         QueueName: this.queueName
       }, (err, response) => {
@@ -117,21 +132,23 @@ class BloodySimpleSQS extends EventEmitter {
    * @return {Promise}
    */
   size(callback) {
-    let resolver = (resolve, reject) => {
+    const resolver = (resolve, reject) => {
       this.sqs.getQueueAttributes({
         QueueUrl: this.queueUrl,
         AttributeNames: ['ApproximateNumberOfMessages', 'ApproximateNumberOfMessagesNotVisible']
       }, (err, response) => {
         if (err) return reject(err);
 
-        let messagesCount = parseInt(response.Attributes.ApproximateNumberOfMessages, 10) +
+        const n = parseInt(response.Attributes.ApproximateNumberOfMessages, 10) +
           parseInt(response.Attributes.ApproximateNumberOfMessagesNotVisible, 10);
 
-        resolve(messagesCount);
+        resolve(n);
       });
     };
 
-    return this._contructPromise(resolver).nodeify(callback);
+    return this._ready()
+      .then(() => new Promise(resolver))
+      .nodeify(callback);
   }
 
   /**
@@ -141,11 +158,7 @@ class BloodySimpleSQS extends EventEmitter {
    */
   isEmpty(callback) {
     return this.size()
-
-      .then((messagesCount) => {
-        return messagesCount === 0;
-      })
-
+      .then((n) => n === 0)
       .nodeify(callback);
   }
 
@@ -181,8 +194,8 @@ class BloodySimpleSQS extends EventEmitter {
     }
 
     // define promise resolver
-    let resolver = (resolve, reject) => {
-      let params = {
+    const resolver = (resolve, reject) => {
+      const params = {
         QueueUrl: this.queueUrl,
         MessageBody: JSON.stringify(payload)
       };
@@ -202,7 +215,9 @@ class BloodySimpleSQS extends EventEmitter {
       });
     };
 
-    return this._contructPromise(resolver).nodeify(callback);
+    return this._ready()
+      .then(() => new Promise(resolver))
+      .nodeify(callback);
   }
 
   /**
@@ -246,8 +261,8 @@ class BloodySimpleSQS extends EventEmitter {
     }
 
     // define promise resolver
-    let resolver = (resolve, reject) => {
-      let params = {
+    const resolver = (resolve, reject) => {
+      const params = {
         QueueUrl: this.queueUrl,
         Entries: arr.map((e) => {
           return {
@@ -270,7 +285,9 @@ class BloodySimpleSQS extends EventEmitter {
       });
     };
 
-    return this._contructPromise(resolver).nodeify(callback);
+    return this._ready()
+      .then(() => new Promise(resolver))
+      .nodeify(callback);
   }
 
   /**
@@ -301,12 +318,12 @@ class BloodySimpleSQS extends EventEmitter {
 
     // validate options
     if (!_.isNumber(options.timeout)) {
-      return Promise.reject(new CustomError(`Invalid timeout option; expected number, received ${type(options.timeout)}`))
+      return Promise.reject(new CustomError(`Invalid timeout option; expected number, received ${type(options.timeout)}`, 'InvalidArgument'))
         .nodeify(callback);
     }
 
     if (!_.isNumber(options.limit)) {
-      return Promise.reject(new CustomError(`Invalid limit option; expected number, received ${type(options.limit)}`))
+      return Promise.reject(new CustomError(`Invalid limit option; expected number, received ${type(options.limit)}`, 'InvalidArgument'))
         .nodeify(callback);
     }
 
@@ -321,7 +338,7 @@ class BloodySimpleSQS extends EventEmitter {
     }
 
     // define promise resolver
-    let resolver = (resolve, reject) => {
+    const resolver = (resolve, reject) => {
       this.sqs.receiveMessage({
         QueueUrl: this.queueUrl,
         MaxNumberOfMessages: options.limit,
@@ -329,8 +346,7 @@ class BloodySimpleSQS extends EventEmitter {
       }, (err, response) => {
         if (err) return reject(err);
 
-        let messages = (response.Messages || [])
-
+        const messages = (response.Messages || [])
           .map((obj) => {
             return {
               id: obj.MessageId,
@@ -344,7 +360,9 @@ class BloodySimpleSQS extends EventEmitter {
       });
     };
 
-    return this._contructPromise(resolver).nodeify(callback);
+    return this._ready()
+      .then(() => new Promise(resolver))
+      .nodeify(callback);
   }
 
   /**
@@ -376,10 +394,15 @@ class BloodySimpleSQS extends EventEmitter {
 
     // peek and unpack returned messages
     return this.peek(options)
+
       .then((messages) => {
-        if (messages.length === 0) return null;
+        if (messages.length === 0) {
+          return null;
+        }
+
         return messages[0];
       })
+
       .nodeify(callback);
   }
 
@@ -392,12 +415,12 @@ class BloodySimpleSQS extends EventEmitter {
   remove(receiptHandle, callback) {
     // validate arguments
     if (!_.isString(receiptHandle)) {
-      return Promise.reject(new CustomError(`Invalid receiptHandle argument; expected string, received ${type(receiptHandle)}`))
+      return Promise.reject(new CustomError(`Invalid receiptHandle argument; expected string, received ${type(receiptHandle)}`, 'InvalidArgument'))
         .nodeify(callback);
     }
 
     // define promise resolver
-    let resolver = (resolve, reject) => {
+    const resolver = (resolve, reject) => {
       this.sqs.deleteMessage({
         QueueUrl: this.queueUrl,
         ReceiptHandle: receiptHandle
@@ -407,7 +430,9 @@ class BloodySimpleSQS extends EventEmitter {
       });
     };
 
-    return this._contructPromise(resolver).nodeify(callback);
+    return this._ready
+      .then(() => new Promise(resolver))
+      .nodeify(callback);
   }
 
   /**
@@ -422,8 +447,7 @@ class BloodySimpleSQS extends EventEmitter {
     return this.peek(options)
 
       .map((message) => {
-        return this.remove(message.receiptHandle)
-          .return(message);
+        return this.remove(message.receiptHandle).return(message);
       })
 
       .nodeify(callback);
@@ -440,10 +464,11 @@ class BloodySimpleSQS extends EventEmitter {
     return this.peekOne(options)
 
       .then((message) => {
-        if (!message) return null;
+        if (!message) {
+          return null;
+        }
 
-        return this.remove(message.receiptHandle)
-          .return(message);
+        return this.remove(message.receiptHandle).return(message);
       })
 
       .nodeify(callback);
@@ -455,14 +480,16 @@ class BloodySimpleSQS extends EventEmitter {
    * @return {Promise}
    */
   clear(callback) {
-    let resolver = (resolve, reject) => {
+    const resolver = (resolve, reject) => {
       this.sqs.purgeQueue({QueueUrl: this.queueUrl}, (err) => {
         if (err) return reject(err);
         resolve();
       });
     };
 
-    return this._contructPromise(resolver).nodeify(callback);
+    return this._ready()
+      .then(() => new Promise(resolver))
+      .nodeify(callback);
   }
 
   /**
@@ -470,7 +497,7 @@ class BloodySimpleSQS extends EventEmitter {
    * @return {stream.Readable}
    */
   createReadStream() {
-    let rs = new Readable({
+    const rs = new Readable({
       highWaterMark: 1, // as little as possible
       objectMode: true,
       encoding: 'utf8'
