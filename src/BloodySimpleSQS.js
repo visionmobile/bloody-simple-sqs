@@ -71,23 +71,6 @@ class BloodySimpleSQS extends EventEmitter {
   }
 
   /**
-   * Constructs and returns a new Promise based on the designated resolver.
-   * Delays the execution of the resolver until the queue emits ready.
-   * @param {Function} resolver
-   * @return {Promise}
-   * @private
-   */
-  _contructPromise(resolver) {
-    return new Promise((resolve, reject) => {
-      if (this.isReady) {
-        resolver(resolve, reject);
-      } else {
-        this.once('ready', () => resolver(resolve, reject));
-      }
-    });
-  }
-
-  /**
    * Returns a promise that will be resolved when the queue emits ready.
    * @return {Promise}
    * @private
