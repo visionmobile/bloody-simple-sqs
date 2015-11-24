@@ -408,14 +408,23 @@ class BloodySimpleSQS extends EventEmitter {
 
   /**
    * Removes the designated message from queue.
-   * @param {String} receiptHandle the message's receipt handle, as given on peek().
+   * @param {Object, String} message a message (as provided by #peek, #poll, #peekOne, #pollOne) or its receipt handle.
    * @param {Function} [callback] an optional callback function with (err) arguments.
    * @return {Promise}
    */
-  remove(receiptHandle, callback) {
-    // validate arguments
+  remove(message, callback) {
+    let receiptHandle;
+
+    // extract receiptHandle from message
+    if (_.isString(message)) {
+      receiptHandle = message;
+    } else if (_.isObject(message)) {
+      receiptHandle = message.receiptHandle;
+    }
+
+    // make sure receiptHandle is valid
     if (!_.isString(receiptHandle)) {
-      return Promise.reject(new CustomError(`Invalid receiptHandle argument; expected string, received ${type(receiptHandle)}`, 'InvalidArgument'))
+      return Promise.reject(new CustomError(`Invalid message argument; expected string or object with a receiptHandle property, received ${type(message)}`, 'InvalidArgument'))
         .nodeify(callback);
     }
 
