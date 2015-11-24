@@ -1,18 +1,19 @@
+/* global describe, it */
+
 const assert = require('chai').assert;
 const SQS = require('../src/BloodySimpleSQS');
 
 describe('BloodySimpleSQS', function () {
-
-  let queue = new SQS({
+  const queue = new SQS({
     queueName: 'bloody-simple-sqs',
     accessKeyId: process.env.ACCESS_KEY_ID,
     secretAccessKey: process.env.SECRET_ACCESS_KEY
   });
 
-  let size, receiptHandle;
+  let size;
+  let receiptHandle;
 
   describe('#getUrl()', function () {
-
     it('accepts a callback function', function (done) {
       queue.getUrl(done);
     });
@@ -26,11 +27,9 @@ describe('BloodySimpleSQS', function () {
 
         .then(done, done);
     });
-
   });
 
   describe('#size()', function () {
-
     it('returns the size of the queue', function (done) {
       queue.size()
 
@@ -41,11 +40,9 @@ describe('BloodySimpleSQS', function () {
 
         .then(done, done);
     });
-
   });
 
   describe('#add()', function () {
-
     it('rejects with error when payload is undefined', function (done) {
       queue.add()
 
@@ -82,11 +79,9 @@ describe('BloodySimpleSQS', function () {
 
         .then(done, done);
     });
-
   });
 
   describe('#addAll()', function () {
-
     it('rejects with error when arr is undefined', function (done) {
       queue.addAll()
 
@@ -95,11 +90,9 @@ describe('BloodySimpleSQS', function () {
           done();
         });
     });
-
   });
 
   describe('#peek()', function () {
-
     it('rejects with error when options is null', function (done) {
       queue.peek(null)
 
@@ -134,7 +127,7 @@ describe('BloodySimpleSQS', function () {
           assert.isArray(messages);
           assert.lengthOf(messages, 1);
 
-          let message = messages[0];
+          const message = messages[0];
 
           assert.property(message, 'id');
           assert.isString(message.id);
@@ -152,11 +145,9 @@ describe('BloodySimpleSQS', function () {
 
         .then(done, done);
     });
-
   });
 
   describe('#poll()', function () {
-
     it('rejects with error when options is null', function (done) {
       queue.poll(null)
 
@@ -183,11 +174,9 @@ describe('BloodySimpleSQS', function () {
           done();
         });
     });
-
   });
 
   describe('#remove()', function () {
-
     it('rejects with error when receiptHandle is undefined', function (done) {
       queue.remove()
 
@@ -240,11 +229,9 @@ describe('BloodySimpleSQS', function () {
 
         .then(done, done);
     });
-
   });
 
   describe('#clear()', function () {
-
     it('removes all messages from queue', function (done) {
       queue.clear().then(done, done);
     });
@@ -259,7 +246,5 @@ describe('BloodySimpleSQS', function () {
 
         .then(done, done);
     });
-
   });
-
 });
