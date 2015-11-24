@@ -439,7 +439,7 @@ class BloodySimpleSQS extends EventEmitter {
       });
     };
 
-    return this._ready
+    return this._ready()
       .then(() => new Promise(resolver))
       .nodeify(callback);
   }
